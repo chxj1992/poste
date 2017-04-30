@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+
+  consul:
+    image: consul:0.8.1
+    container_name: poste-consul
+    ports:
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:8600"
+    restart: always
+
+  beanstalkd:
+    image: schickling/beanstalkd
+    container_name: poste-beanstalkd
+    ports:
+      - "11300:11300"
+    restart: always
+
+  beanstalkd-console:
+    image: schickling/beanstalkd-console
+    container_name: poste-beanstalkd-console
+    links:
+      - beanstalkd
+    ports:
+      - "2080:2080"
+    restart: always
+
+  redis:
+    image: redis:3.2
+    container_name: poste-redis
+    ports:
+      - "6380:6379"
+    restart: always
+
+
