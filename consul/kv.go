@@ -64,19 +64,19 @@ func KVValues(prefix string) []string {
 	return values
 }
 
-func KVWatch(prefix string, callback func(values []string)) {
+func KVWatch(prefix string, callback func(values []*api.KVPair)) {
 	q := &api.QueryOptions{}
-	for ; ; {
+	for {
 		pairs, meta, err := GetKV().List(prefix, q)
 		q.WaitIndex = meta.LastIndex
 
-		values := []string{}
+		values := []*api.KVPair{}
 		if err != nil {
 			log.Printf("[ERROR] consul kv get value failed. error : %s", err)
 		}
 		if pairs != nil {
 			for _, pair := range pairs {
-				values = append(values, string(pair.Value))
+				values = append(values, pair)
 			}
 		}
 		callback(values)

@@ -8,13 +8,13 @@ import (
 
 func Watch(callback func(mailmen []*Mailman)) {
 	q := &api.QueryOptions{}
-	for ; ; {
+	for {
 		services, meta, err := consul.GetHealth().Service("mailman", "", false, q)
 		q.WaitIndex = meta.LastIndex
 
 		values := []*Mailman{}
 		if err != nil {
-			log.Printf("[ERROR] consul kv get value failed. error : %s", err)
+			log.Printf("[ERROR] consul get service failed. error : %s", err)
 		}
 		if services != nil {
 			for _, service := range services {

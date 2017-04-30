@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"poste/util"
 	"poste/consul"
+	"github.com/serialx/hashring"
 )
 
 type Dispatcher struct {
@@ -16,7 +17,10 @@ type Dispatcher struct {
 
 var (
 	D = &Dispatcher{}
-	mailmen []*mailman.Mailman
+	mailmenWs []string
+	mailmenTcp []string
+	mailmenWsRing *hashring.HashRing
+	mailmenTcpRing *hashring.HashRing
 )
 
 func (d *Dispatcher)Addr() string {
@@ -24,15 +28,28 @@ func (d *Dispatcher)Addr() string {
 }
 
 var callback = func(values []*mailman.Mailman) {
-	mailmen = values
+	mailmenWs = []string{}
+	mailmenTcp = []string{}
+	for _, m := range values {
+		if m.ServerType == mailman.WsType {
+			mailmenWs = append(mailmenWs, m.Addr())
+		}
+		if m.ServerType == mailman.TcpType {
+			mailmenTcp = append(mailmenTcp, m.Addr())
+		}
+	}
+	log.Printf("[INFO] ws mailmen %s", mailmenWs)
+	log.Printf("[INFO] tcp mailmen %s", mailmenTcp)
 
-	log.Printf("[INFO] mailmen %s", mailmen)
+	mailmenWsRing = hashring.New(mailmenWs)
+	mailmenTcpRing = hashring.New(mailmenTcp)
 }
 
 func Serve(host string, port int) {
 	go mailman.Watch(callback)
+	go Consume()
 
-	http.HandleFunc("/mailmen", Mailmen);
+	handleHttp()
 
 	address := util.ToAddr(host, port)
 
@@ -54,4 +71,8 @@ func Serve(host string, port int) {
 	if err != nil {
 		log.Fatal("dispatcher server start failed: ", err)
 	}
+}
+func handleHttp() {
+	http.HandleFunc("/mailmen/ws", MailmenWs)
+	http.HandleFunc("/mailmen/tcp", MailmenTcp)
 }
