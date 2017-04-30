@@ -45,9 +45,9 @@ func serveWs(host string, port int) {
 	defer func() {
 		consul.Deregister("mailman", addr.IP.String(), addr.Port)
 	}()
-	consul.Register("mailman", addr.IP.String(), addr.Port, []string(string(WsType)))
-	Host = addr.IP.String()
-	Port = addr.Port
+	consul.Register("mailman", addr.IP.String(), addr.Port, []string{string(WsType)})
+	M.Host = addr.IP.String()
+	M.Port = addr.Port
 
 	err = http.Serve(listener, nil)
 	if err != nil {
@@ -79,7 +79,6 @@ func writeWs(c *Client) {
 	for {
 		message, ok := <-c.send
 		if !ok {
-			// The hub closed the channel.
 			c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 			return
 		}

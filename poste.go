@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 	"poste/consul"
+	"poste/dispather"
 )
 
 
@@ -45,6 +46,14 @@ func main() {
 			Usage:   "start a dispatcher server",
 			Flags: flags,
 			Action:  func(c *cli.Context) error {
+				ch := make(chan os.Signal, 2)
+				signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
+				go func() {
+					<-ch
+					consul.Deregister("dispatcher", dispather.D.Host, dispather.D.Port)
+					os.Exit(1)
+				}()
+				dispather.Serve(host, port)
 				return nil
 			},
 		},
@@ -63,7 +72,7 @@ func main() {
 				signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 				go func() {
 					<-ch
-					consul.Deregister("mailman", mailman.Host, mailman.Port)
+					consul.Deregister("mailman", mailman.M.Host, mailman.M.Port)
 					os.Exit(1)
 				}()
 				mailman.Serve(host, port, mailman.ServerType(serverType))
