@@ -8,33 +8,37 @@ import (
 	"github.com/kr/beanstalk"
 	"time"
 	"encoding/json"
+	"poste/mailman"
+	"github.com/gorilla/websocket"
 )
 
-var message data.Data
-var count = 0
-
 func Consume() {
+	var count = 0
 	consul.KVWatch("queue", func(values []*api.KVPair) {
-		var queue = make(chan int, 1)
+		queues := getQueues(values)
+
+		// only keep the latest consumers loop
+		var work = make(chan int, 1)
 		count += 1
-		queue <- count
+		work <- count
 		log.Printf("watching queue. %s", values)
 		go func() {
 			for {
-				v := <-queue
+				v := <-work
 				if v != count {
 					log.Printf("v %s c %s", v, count)
 					break;
 				} else {
-					queue <- v
-					consuming(values)
+					work <- v
+					consuming(queues)
 				}
 			}
 		}()
 	})
 }
 
-func consuming(values []*api.KVPair) {
+func getQueues(values []*api.KVPair) []*beanstalk.Conn {
+	queues := []*beanstalk.Conn{}
 	for _, pair := range values {
 		c, err := beanstalk.Dial("tcp", string(pair.Value))
 		if err != nil {
@@ -42,13 +46,28 @@ func consuming(values []*api.KVPair) {
 			consul.KVDelete(string(pair.Key))
 			continue
 		}
+		queues = append(queues, c)
+	}
+	return queues
+}
+
+func consuming(queues []*beanstalk.Conn) {
+	var d data.Data
+	for _, c := range queues {
 		id, body, err := c.Reserve(5 * time.Second)
 		if err != nil {
-			log.Printf("get message failed. error %s", err)
 			continue
 		}
+		c.Delete(id)
 		log.Printf("get queue. ID : %s . data : %s", id, body)
-		json.Unmarshal(body, &message)
-		log.Printf("message : %s", message)
+		json.Unmarshal(body, &d)
+
+		if d.ServerType == mailman.WsType {
+			addr, ok := mailmenWsRing.GetNode(d.Target)
+			if !ok {
+				log.Printf("[ERROR] get wsmailman failed. addr : %s", addr)
+			}
+			mailmenWsClients[addr].WriteMessage(websocket.TextMessage, d.Marshal())
+		}
 	}
 }

@@ -1,16 +1,17 @@
 package mailman
 
-import "poste/util"
-
-type ServerType string
+import (
+	"poste/util"
+	"poste/data"
+)
 
 const (
-	TcpType ServerType = "tcp"
-	WsType ServerType = "ws"
+	TcpType data.ServerType = "tcp"
+	WsType data.ServerType = "ws"
 )
 
 type Mailman struct {
-	ServerType ServerType `json:"type"`
+	ServerType data.ServerType `json:"type"`
 	Host       string `json:"host"`
 	Port       int `json:"port"`
 }
@@ -21,7 +22,7 @@ func (m *Mailman)Addr() string {
 	return util.ToAddr(m.Host, m.Port)
 }
 
-func Serve(host string, port int, serverType ServerType) {
+func Serve(host string, port int, serverType data.ServerType) {
 	if serverType == WsType {
 		M.ServerType = serverType
 		serveWs(host, port)

@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/consul/api"
 	"log"
 	"poste/consul"
+	"poste/data"
 )
 
 func Watch(callback func(mailmen []*Mailman)) {
@@ -18,7 +19,7 @@ func Watch(callback func(mailmen []*Mailman)) {
 		}
 		if services != nil {
 			for _, service := range services {
-				m := &Mailman{Host:service.Service.Address, Port:service.Service.Port, ServerType:ServerType(service.Service.Tags[0])}
+				m := &Mailman{Host:service.Service.Address, Port:service.Service.Port, ServerType:data.ServerType(service.Service.Tags[0])}
 				values = append(values, m)
 			}
 		}

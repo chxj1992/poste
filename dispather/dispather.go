@@ -8,6 +8,7 @@ import (
 	"poste/util"
 	"poste/consul"
 	"github.com/serialx/hashring"
+	"github.com/gorilla/websocket"
 )
 
 type Dispatcher struct {
@@ -17,9 +18,12 @@ type Dispatcher struct {
 
 var (
 	D = &Dispatcher{}
+
 	mailmenWs []string
-	mailmenTcp []string
+	mailmenWsClients map[string]*websocket.Conn
 	mailmenWsRing *hashring.HashRing
+
+	mailmenTcp []string
 	mailmenTcpRing *hashring.HashRing
 )
 
@@ -29,19 +33,27 @@ func (d *Dispatcher)Addr() string {
 
 var callback = func(values []*mailman.Mailman) {
 	mailmenWs = []string{}
+	mailmenWsClients = map[string]*websocket.Conn{}
 	mailmenTcp = []string{}
+
 	for _, m := range values {
 		if m.ServerType == mailman.WsType {
 			mailmenWs = append(mailmenWs, m.Addr())
+			c, _, err := websocket.DefaultDialer.Dial("ws://" + m.Addr(), nil)
+			if err != nil {
+				log.Printf("connect to mailman failed : %s", err)
+			}
+			mailmenWsClients[m.Addr()] = c
 		}
 		if m.ServerType == mailman.TcpType {
 			mailmenTcp = append(mailmenTcp, m.Addr())
 		}
 	}
-	log.Printf("[INFO] ws mailmen %s", mailmenWs)
-	log.Printf("[INFO] tcp mailmen %s", mailmenTcp)
 
+	log.Printf("[INFO] ws mailmen %s", mailmenWs)
 	mailmenWsRing = hashring.New(mailmenWs)
+
+	log.Printf("[INFO] tcp mailmen %s", mailmenTcp)
 	mailmenTcpRing = hashring.New(mailmenTcp)
 }
 

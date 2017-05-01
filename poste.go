@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"poste/consul"
 	"poste/dispather"
+	"poste/data"
 )
 
 
@@ -75,7 +76,7 @@ func main() {
 					consul.Deregister("mailman", mailman.M.Host, mailman.M.Port)
 					os.Exit(1)
 				}()
-				mailman.Serve(host, port, mailman.ServerType(serverType))
+				mailman.Serve(host, port, data.ServerType(serverType))
 				return nil
 			},
 		},

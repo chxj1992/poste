@@ -7,6 +7,8 @@ import (
 	"net"
 	"poste/consul"
 	"poste/util"
+	"encoding/json"
+	"poste/data"
 )
 
 var upgrader = websocket.Upgrader{
@@ -22,6 +24,8 @@ type Client struct {
 	send chan []byte
 }
 
+var hub = map[string][]*Client{}
+
 func serveWs(host string, port int) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -30,6 +34,11 @@ func serveWs(host string, port int) {
 			return
 		}
 		client := &Client{conn: conn, send: make(chan []byte, 256)}
+		id := r.URL.Query().Get("id")
+		if id != "" {
+			hub[id] = append(hub[id], client)
+			log.Printf("user %s connected", id)
+		}
 		go readWs(client)
 		writeWs(client)
 	})
@@ -68,7 +77,11 @@ func readWs(c *Client) {
 			break
 		}
 		log.Printf("message received : %s", string(message))
-		c.send <- []byte("message received : " + string(message))
+		d := data.Data{}
+		json.Unmarshal(message, &d)
+		for _, t := range hub[d.Target] {
+			t.send <- []byte(d.Message)
+		}
 	}
 }
 

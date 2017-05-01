@@ -8,7 +8,7 @@ import (
 
 func TestDataEncode(t *testing.T) {
 	data := Data{Target:"1", ServerType:"ws", Message:"hello world"}
-	bytes, _ := json.Marshal(data)
+	bytes := data.Marshal()
 	assert.Equal(t, "{\"target\":\"1\",\"type\":\"ws\",\"message\":\"hello world\"}", string(bytes))
 }
 
