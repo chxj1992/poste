@@ -2,7 +2,7 @@ package data
 
 import (
 	"encoding/json"
-	"log"
+	"poste/util"
 )
 
 type ServerType string
@@ -13,11 +13,11 @@ type Data struct {
 	Message    string `json:"message"`
 }
 
-func (d Data)Marshal() []byte {
-	bytes,err := json.Marshal(d)
+func (d Data)Marshal() (bytes []byte) {
+	bytes, err := json.Marshal(d)
 	if err != nil {
-		log.Printf("data marshal error : %s", err)
+		util.LogError("data marshal error : %s", err)
 		return []byte{}
 	}
-	return bytes
+	return
 }

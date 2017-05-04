@@ -2,24 +2,24 @@ package mailman
 
 import (
 	"github.com/hashicorp/consul/api"
-	"log"
 	"poste/consul"
 	"poste/data"
+	"poste/util"
 )
 
 func Watch(callback func(mailmen []*Mailman)) {
 	q := &api.QueryOptions{}
 	for {
-		services, meta, err := consul.GetHealth().Service("mailman", "", false, q)
+		services, meta, err := consul.GetHealth().Service(string(consul.Mailman), "", false, q)
 		q.WaitIndex = meta.LastIndex
 
 		values := []*Mailman{}
 		if err != nil {
-			log.Printf("[ERROR] consul get service failed. error : %s", err)
+			util.LogError("consul get service failed. error : %s", err)
 		}
 		if services != nil {
-			for _, service := range services {
-				m := &Mailman{Host:service.Service.Address, Port:service.Service.Port, ServerType:data.ServerType(service.Service.Tags[0])}
+			for _, s := range services {
+				m := &Mailman{Host:s.Service.Address, Port:s.Service.Port, ServerType:data.ServerType(s.Service.Tags[0])}
 				values = append(values, m)
 			}
 		}

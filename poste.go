@@ -9,8 +9,8 @@ import (
 	"poste/consul"
 	"poste/dispather"
 	"poste/data"
+	"poste/api"
 )
-
 
 func main() {
 
@@ -51,7 +51,7 @@ func main() {
 				signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 				go func() {
 					<-ch
-					consul.Deregister("dispatcher", dispather.D.Host, dispather.D.Port)
+					consul.Deregister(consul.Dispatcher, dispather.D.Host, dispather.D.Port)
 					os.Exit(1)
 				}()
 				dispather.Serve(host, port)
@@ -73,10 +73,27 @@ func main() {
 				signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 				go func() {
 					<-ch
-					consul.Deregister("mailman", mailman.M.Host, mailman.M.Port)
+					consul.Deregister(consul.Mailman, mailman.M.Host, mailman.M.Port)
 					os.Exit(1)
 				}()
 				mailman.Serve(host, port, data.ServerType(serverType))
+				return nil
+			},
+		},
+		{
+			Name:    "api",
+			Aliases: []string{"a"},
+			Usage:   "start an api server",
+			Flags: flags,
+			Action:  func(c *cli.Context) error {
+				ch := make(chan os.Signal, 2)
+				signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
+				go func() {
+					<-ch
+					consul.Deregister(consul.Api, api.A.Host, api.A.Port)
+					os.Exit(1)
+				}()
+				api.Serve(host, port)
 				return nil
 			},
 		},

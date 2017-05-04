@@ -3,6 +3,7 @@ package mailman
 import (
 	"poste/util"
 	"poste/data"
+	"net"
 )
 
 const (
@@ -29,3 +30,7 @@ func Serve(host string, port int, serverType data.ServerType) {
 	}
 }
 
+func beforeServe(addr *net.TCPAddr) {
+	M.Host = addr.IP.String()
+	M.Port = addr.Port
+}

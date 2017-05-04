@@ -1,0 +1,241 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "pPH/BoINXxzYDObljpsGZbysMrw=",
+			"path": "github.com/BurntSushi/toml",
+			"revision": "b26d9c308763d68093482582cea63d69be07a0f0",
+			"revisionTime": "2017-03-28T06:15:53Z"
+		},
+		{
+			"checksumSHA1": "fcfxNsCuheCrubAAl6zWgimCnLY=",
+			"path": "github.com/codegangsta/inject",
+			"revision": "33e0aa1cb7c019ccc3fbe049a8262a6403d30504",
+			"revisionTime": "2015-01-14T23:56:00Z"
+		},
+		{
+			"checksumSHA1": "OFu4xJEIjiI8Suu+j/gabfp+y6Q=",
+			"origin": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
+			"revisionTime": "2017-01-30T11:31:45Z"
+		},
+		{
+			"checksumSHA1": "boXATneVLjbku1VGFazHp6CvhKU=",
+			"path": "github.com/go-oauth2/redis",
+			"revision": "e44a7c9044f74db1f5ebef4e3e3804346729cf64",
+			"revisionTime": "2016-11-18T08:06:03Z"
+		},
+		{
+			"checksumSHA1": "hEnH6sgR83Qfx7UNnphNNlelmj0=",
+			"path": "github.com/gorilla/websocket",
+			"revision": "a91eba7f97777409bc2c443f5534d41dd20c5720",
+			"revisionTime": "2017-03-19T17:27:27Z"
+		},
+		{
+			"checksumSHA1": "uB7qEuqVeWzCLRX1FypCKsJdEBg=",
+			"path": "github.com/hashicorp/consul/api",
+			"revision": "48fa2962eb7775e68049957c7257d9c52a21b520",
+			"revisionTime": "2017-04-27T20:34:34Z"
+		},
+		{
+			"checksumSHA1": "b8F628srIitj5p7Y130xc9k0QWs=",
+			"origin": "github.com/hashicorp/consul/vendor/github.com/hashicorp/go-cleanhttp",
+			"path": "github.com/hashicorp/go-cleanhttp",
+			"revision": "48fa2962eb7775e68049957c7257d9c52a21b520",
+			"revisionTime": "2017-04-27T20:34:34Z"
+		},
+		{
+			"checksumSHA1": "A1PcINvF3UiwHRKn8UcgARgvGRs=",
+			"origin": "github.com/hashicorp/consul/vendor/github.com/hashicorp/go-rootcerts",
+			"path": "github.com/hashicorp/go-rootcerts",
+			"revision": "48fa2962eb7775e68049957c7257d9c52a21b520",
+			"revisionTime": "2017-04-27T20:34:34Z"
+		},
+		{
+			"checksumSHA1": "E3Xcanc9ouQwL+CZGOUyA/+giLg=",
+			"origin": "github.com/hashicorp/consul/vendor/github.com/hashicorp/serf/coordinate",
+			"path": "github.com/hashicorp/serf/coordinate",
+			"revision": "48fa2962eb7775e68049957c7257d9c52a21b520",
+			"revisionTime": "2017-04-27T20:34:34Z"
+		},
+		{
+			"checksumSHA1": "ei/FyAed4h941oj3zucBQx6NNEA=",
+			"path": "github.com/jinzhu/configor",
+			"revision": "b7df2005e02e9226447139012db968eda90a4b91",
+			"revisionTime": "2017-01-13T15:44:04Z"
+		},
+		{
+			"checksumSHA1": "wG4Q6ZLkNAnF36nFdoTaQoY48RE=",
+			"path": "github.com/kr/beanstalk",
+			"revision": "e99e1a384e4ace0401329ea37f702a2904990f91",
+			"revisionTime": "2015-09-23T20:56:05Z"
+		},
+		{
+			"checksumSHA1": "V/quM7+em2ByJbWBLOsEwnY3j/Q=",
+			"origin": "github.com/hashicorp/consul/vendor/github.com/mitchellh/go-homedir",
+			"path": "github.com/mitchellh/go-homedir",
+			"revision": "48fa2962eb7775e68049957c7257d9c52a21b520",
+			"revisionTime": "2017-04-27T20:34:34Z"
+		},
+		{
+			"checksumSHA1": "zKKp5SZ3d3ycKe4EKMNT0BqAWBw=",
+			"origin": "github.com/stretchr/testify/vendor/github.com/pmezard/go-difflib/difflib",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
+			"revisionTime": "2017-01-30T11:31:45Z"
+		},
+		{
+			"checksumSHA1": "zmC8/3V4ls53DJlNTKDZwPSC/dA=",
+			"path": "github.com/satori/go.uuid",
+			"revision": "5bf94b69c6b68ee1b541973bb8e1144db23a194b",
+			"revisionTime": "2017-03-21T23:07:31Z"
+		},
+		{
+			"checksumSHA1": "e/Neq7L3I0YEU7O3eYuaxi8xCok=",
+			"path": "github.com/serialx/hashring",
+			"revision": "88762898094ca9cde396a66046d220daa3ba08a2",
+			"revisionTime": "2017-04-20T16:15:57Z"
+		},
+		{
+			"checksumSHA1": "JXUVA1jky8ZX8w09p2t5KLs97Nc=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
+			"revisionTime": "2017-01-30T11:31:45Z"
+		},
+		{
+			"checksumSHA1": "dezZFwteKCEvEN0IkR6XSD6qoJU=",
+			"path": "github.com/tidwall/btree",
+			"revision": "9876f1454cf0993a53d74c27196993e345f50dd1",
+			"revisionTime": "2017-01-13T22:41:14Z"
+		},
+		{
+			"checksumSHA1": "jF02GFKCLQlLWscQHtv43mWpBVM=",
+			"path": "github.com/tidwall/buntdb",
+			"revision": "83418750ee775aa24194606fffe7fec391975a65",
+			"revisionTime": "2017-03-22T14:35:28Z"
+		},
+		{
+			"checksumSHA1": "0hF0p+jIG1wbSuYWlzXQ8ZM2cWs=",
+			"path": "github.com/tidwall/gjson",
+			"revision": "e30a9c1037e0f9fbde93a6a9848a2dd5c59d3b91",
+			"revisionTime": "2017-04-18T16:28:51Z"
+		},
+		{
+			"checksumSHA1": "fB70Sk+JyVkdav2NHeNjG8Z0mkQ=",
+			"path": "github.com/tidwall/grect",
+			"revision": "ba9a043346eba55344e40d66a5e74cfda3a9d293",
+			"revisionTime": "2016-10-06T13:56:19Z"
+		},
+		{
+			"checksumSHA1": "qmePMXEDYGwkAfT9QvtMC58JN/E=",
+			"path": "github.com/tidwall/match",
+			"revision": "173748da739a410c5b0b813b956f89ff94730b4c",
+			"revisionTime": "2016-08-30T17:39:30Z"
+		},
+		{
+			"checksumSHA1": "lCeIrhrooBzMXbB/YH32E7I4MSU=",
+			"path": "github.com/tidwall/rtree",
+			"revision": "d4a8a3d30d5729f85edfba1745241f3a621d0359",
+			"revisionTime": "2016-09-03T21:37:29Z"
+		},
+		{
+			"checksumSHA1": "K/CP3EBR0TUpw8DPpjRExGEYNkY=",
+			"path": "github.com/urfave/cli",
+			"revision": "ab403a54a148f2d857920810291539e1f817ee7b",
+			"revisionTime": "2017-04-24T21:31:22Z"
+		},
+		{
+			"checksumSHA1": "W24/P7w98nMoEuRKgZp9iboUvwk=",
+			"path": "gopkg.in/oauth2.v3",
+			"revision": "4c69c584f7ec46f1e58eea12de19e75b36501304",
+			"revisionTime": "2016-12-09T10:16:20Z"
+		},
+		{
+			"checksumSHA1": "0JeQm6he91KNwoynodi6+WShQGA=",
+			"path": "gopkg.in/oauth2.v3/errors",
+			"revision": "4c69c584f7ec46f1e58eea12de19e75b36501304",
+			"revisionTime": "2016-12-09T10:16:20Z"
+		},
+		{
+			"checksumSHA1": "fA0yFouLUWW3gkQcG700G93Zr94=",
+			"path": "gopkg.in/oauth2.v3/generates",
+			"revision": "4c69c584f7ec46f1e58eea12de19e75b36501304",
+			"revisionTime": "2016-12-09T10:16:20Z"
+		},
+		{
+			"checksumSHA1": "wsx0siBIRfQIDV2rMKz3Z9cXcoU=",
+			"path": "gopkg.in/oauth2.v3/manage",
+			"revision": "4c69c584f7ec46f1e58eea12de19e75b36501304",
+			"revisionTime": "2016-12-09T10:16:20Z"
+		},
+		{
+			"checksumSHA1": "64So/BMzhh4QDhFz/VUNnfEDV8M=",
+			"path": "gopkg.in/oauth2.v3/models",
+			"revision": "4c69c584f7ec46f1e58eea12de19e75b36501304",
+			"revisionTime": "2016-12-09T10:16:20Z"
+		},
+		{
+			"checksumSHA1": "Xq035wAOavJ/4tJ+VbAGTtMkuis=",
+			"path": "gopkg.in/oauth2.v3/server",
+			"revision": "4c69c584f7ec46f1e58eea12de19e75b36501304",
+			"revisionTime": "2016-12-09T10:16:20Z"
+		},
+		{
+			"checksumSHA1": "UcLcm/CYJQK+5JIwcTCGFBMTUj8=",
+			"path": "gopkg.in/oauth2.v3/store",
+			"revision": "4c69c584f7ec46f1e58eea12de19e75b36501304",
+			"revisionTime": "2016-12-09T10:16:20Z"
+		},
+		{
+			"checksumSHA1": "OU/wHTJqhyQfyRnXMVWx1Ox06kQ=",
+			"origin": "github.com/go-oauth2/redis/vendor/gopkg.in/redis.v5",
+			"path": "gopkg.in/redis.v5",
+			"revision": "e44a7c9044f74db1f5ebef4e3e3804346729cf64",
+			"revisionTime": "2016-11-18T08:06:03Z"
+		},
+		{
+			"checksumSHA1": "efyYmNqK7vcPhXW4KXfwbdA1wr4=",
+			"origin": "github.com/go-oauth2/redis/vendor/gopkg.in/redis.v5/internal",
+			"path": "gopkg.in/redis.v5/internal",
+			"revision": "e44a7c9044f74db1f5ebef4e3e3804346729cf64",
+			"revisionTime": "2016-11-18T08:06:03Z"
+		},
+		{
+			"checksumSHA1": "2Ek4SixeRSKOX3mUiBMs3Aw+Guc=",
+			"origin": "github.com/go-oauth2/redis/vendor/gopkg.in/redis.v5/internal/consistenthash",
+			"path": "gopkg.in/redis.v5/internal/consistenthash",
+			"revision": "e44a7c9044f74db1f5ebef4e3e3804346729cf64",
+			"revisionTime": "2016-11-18T08:06:03Z"
+		},
+		{
+			"checksumSHA1": "rJYVKcBrwYUGl7nuuusmZGrt8mY=",
+			"origin": "github.com/go-oauth2/redis/vendor/gopkg.in/redis.v5/internal/hashtag",
+			"path": "gopkg.in/redis.v5/internal/hashtag",
+			"revision": "e44a7c9044f74db1f5ebef4e3e3804346729cf64",
+			"revisionTime": "2016-11-18T08:06:03Z"
+		},
+		{
+			"checksumSHA1": "zsH5BF9qc31R7eEEVYLsjbIigDQ=",
+			"origin": "github.com/go-oauth2/redis/vendor/gopkg.in/redis.v5/internal/pool",
+			"path": "gopkg.in/redis.v5/internal/pool",
+			"revision": "e44a7c9044f74db1f5ebef4e3e3804346729cf64",
+			"revisionTime": "2016-11-18T08:06:03Z"
+		},
+		{
+			"checksumSHA1": "EqPdu5g8NhzxQOMCvzbreTQlzVE=",
+			"origin": "github.com/go-oauth2/redis/vendor/gopkg.in/redis.v5/internal/proto",
+			"path": "gopkg.in/redis.v5/internal/proto",
+			"revision": "e44a7c9044f74db1f5ebef4e3e3804346729cf64",
+			"revisionTime": "2016-11-18T08:06:03Z"
+		},
+		{
+			"checksumSHA1": "MGk7cSnHqiL5soaovzgcJaNH3fc=",
+			"path": "gopkg.in/yaml.v1",
+			"revision": "9f9df34309c04878acc86042b16630b0f696e1de",
+			"revisionTime": "2014-09-24T16:16:07Z"
+		}
+	],
+	"rootPath": "poste"
+}

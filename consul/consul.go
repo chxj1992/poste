@@ -2,14 +2,14 @@ package consul
 
 import (
 	"github.com/hashicorp/consul/api"
-	"log"
+	"poste/util"
 )
 
 func GetClient() *api.Client {
 
 	client, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
-		log.Printf("[ERROR] consul kv get value failed. error : %s", err)
+		util.LogError("consul kv get value failed. error : %s", err)
 		panic("get consul client failed")
 	}
 	return client

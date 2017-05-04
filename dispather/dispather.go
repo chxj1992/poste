@@ -1,14 +1,13 @@
 package dispather
 
 import (
-	"log"
 	"poste/mailman"
-	"net"
-	"net/http"
-	"poste/util"
-	"poste/consul"
 	"github.com/serialx/hashring"
 	"github.com/gorilla/websocket"
+	"net"
+	"poste/util"
+	"net/http"
+	"poste/consul"
 )
 
 type Dispatcher struct {
@@ -23,37 +22,37 @@ var (
 	mailmenWsClients map[string]*websocket.Conn
 	mailmenWsRing *hashring.HashRing
 
+	//TODO:tcp mailman server
 	mailmenTcp []string
+	mailmenTcpClients map[string]*net.Conn
 	mailmenTcpRing *hashring.HashRing
 )
-
-func (d *Dispatcher)Addr() string {
-	return util.ToAddr(d.Host, d.Port)
-}
 
 var callback = func(values []*mailman.Mailman) {
 	mailmenWs = []string{}
 	mailmenWsClients = map[string]*websocket.Conn{}
 	mailmenTcp = []string{}
 
+	// establish connection with every mailman server
 	for _, m := range values {
 		if m.ServerType == mailman.WsType {
 			mailmenWs = append(mailmenWs, m.Addr())
 			c, _, err := websocket.DefaultDialer.Dial("ws://" + m.Addr(), nil)
 			if err != nil {
-				log.Printf("connect to mailman failed : %s", err)
+				util.LogError("connect to mailman failed : %s", err)
 			}
 			mailmenWsClients[m.Addr()] = c
 		}
 		if m.ServerType == mailman.TcpType {
 			mailmenTcp = append(mailmenTcp, m.Addr())
+			//TODO : tcp mailman server
 		}
 	}
 
-	log.Printf("[INFO] ws mailmen %s", mailmenWs)
+	util.LogInfo("ws mailmen %s", mailmenWs)
 	mailmenWsRing = hashring.New(mailmenWs)
 
-	log.Printf("[INFO] tcp mailmen %s", mailmenTcp)
+	util.LogInfo("tcp mailmen %s", mailmenTcp)
 	mailmenTcpRing = hashring.New(mailmenTcp)
 }
 
@@ -61,30 +60,14 @@ func Serve(host string, port int) {
 	go mailman.Watch(callback)
 	go Consume()
 
-	handleHttp()
+	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("pong"))
+	})
 
-	address := util.ToAddr(host, port)
+	consul.RegisterServiceAndServe("dispatcher", host, port, nil, beforeServe)
+}
 
-	var err error
-	listener, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Fatal("dispatcher server start failed: ", err)
-	}
-	log.Printf("dispatcher serves on %s", listener.Addr().String())
-	addr := listener.Addr().(*net.TCPAddr)
-	defer func() {
-		consul.Deregister("dispatcher", addr.IP.String(), addr.Port)
-	}()
-	consul.Register("dispatcher", addr.IP.String(), addr.Port, nil)
+func beforeServe(addr *net.TCPAddr) {
 	D.Host = addr.IP.String()
 	D.Port = addr.Port
-
-	err = http.Serve(listener, nil)
-	if err != nil {
-		log.Fatal("dispatcher server start failed: ", err)
-	}
-}
-func handleHttp() {
-	http.HandleFunc("/mailmen/ws", MailmenWs)
-	http.HandleFunc("/mailmen/tcp", MailmenTcp)
 }

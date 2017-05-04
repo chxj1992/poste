@@ -34,4 +34,12 @@ services:
       - "6380:6379"
     restart: always
 
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
 

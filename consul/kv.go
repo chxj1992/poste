@@ -2,7 +2,7 @@ package consul
 
 import (
 	"github.com/hashicorp/consul/api"
-	"log"
+	"poste/util"
 )
 
 func KVSet(key string, value string) bool {
@@ -10,7 +10,7 @@ func KVSet(key string, value string) bool {
 	kv := GetKV()
 	_, err := kv.Put(p, nil)
 	if err != nil {
-		log.Printf("[ERROR] consul kv set value failed. error : %s", err)
+		util.LogError("consul kv set value failed. error : %s", err)
 		return false
 	}
 	return true
@@ -20,7 +20,7 @@ func KVGet(key string) string {
 	kv := GetKV()
 	pair, _, err := kv.Get(key, nil)
 	if err != nil {
-		log.Printf("[ERROR] consul kv get value failed. error : %s", err)
+		util.LogError("consul kv get value failed. error : %s", err)
 		return ""
 	}
 	if pair == nil {
@@ -32,7 +32,7 @@ func KVGet(key string) string {
 func KVDelete(key string) bool {
 	_, err := GetKV().Delete(key, nil)
 	if err != nil {
-		log.Printf("[ERROR] consul kv delete value failed. error : %s", err)
+		util.LogError("consul kv delete value failed. error : %s", err)
 		return false
 	}
 	return true
@@ -41,7 +41,7 @@ func KVDelete(key string) bool {
 func KVClear() bool {
 	_, err := GetKV().DeleteTree("", nil)
 	if err != nil {
-		log.Printf("[ERROR] consul kv clear failed. error : %s", err)
+		util.LogError("consul kv clear failed. error : %s", err)
 		return false
 	}
 	return true
@@ -52,7 +52,7 @@ func KVValues(prefix string) []string {
 
 	values := []string{}
 	if err != nil {
-		log.Printf("[ERROR] consul kv get value failed. error : %s", err)
+		util.LogError("consul kv get value failed. error : %s", err)
 		return values
 	}
 	if pairs == nil {
@@ -72,7 +72,7 @@ func KVWatch(prefix string, callback func(values []*api.KVPair)) {
 
 		values := []*api.KVPair{}
 		if err != nil {
-			log.Printf("[ERROR] consul kv get value failed. error : %s", err)
+			util.LogError("consul kv get value failed. error : %s", err)
 		}
 		if pairs != nil {
 			for _, pair := range pairs {

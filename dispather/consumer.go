@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"poste/mailman"
 	"github.com/gorilla/websocket"
+	"poste/util"
 )
 
 func Consume() {
@@ -21,12 +22,12 @@ func Consume() {
 		var work = make(chan int, 1)
 		count += 1
 		work <- count
-		log.Printf("watching queue. %s", values)
+		util.LogInfo("watching queue. %s", values)
 		go func() {
 			for {
 				v := <-work
 				if v != count {
-					log.Printf("v %s c %s", v, count)
+					log.Printf("consumer version: %s, current version: %s", v, count)
 					break;
 				} else {
 					work <- v
@@ -42,7 +43,7 @@ func getQueues(values []*api.KVPair) []*beanstalk.Conn {
 	for _, pair := range values {
 		c, err := beanstalk.Dial("tcp", string(pair.Value))
 		if err != nil {
-			log.Printf("get queue failed. error %s", err)
+			util.LogError("get queue failed. error %s", err)
 			consul.KVDelete(string(pair.Key))
 			continue
 		}
@@ -59,13 +60,13 @@ func consuming(queues []*beanstalk.Conn) {
 			continue
 		}
 		c.Delete(id)
-		log.Printf("get queue. ID : %s . data : %s", id, body)
+		util.LogInfo("get queue. ID : %s . data : %s", id, body)
 		json.Unmarshal(body, &d)
 
 		if d.ServerType == mailman.WsType {
 			addr, ok := mailmenWsRing.GetNode(d.Target)
 			if !ok {
-				log.Printf("[ERROR] get wsmailman failed. addr : %s", addr)
+				util.LogError("get wsmailman failed. addr : %s", addr)
 			}
 			mailmenWsClients[addr].WriteMessage(websocket.TextMessage, d.Marshal())
 		}
