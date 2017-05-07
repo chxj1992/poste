@@ -15,6 +15,11 @@ const (
 )
 
 func RegisterServiceAndServe(serviceType ServiceType, host string, port int, tags []string, beforeServe func(addr *net.TCPAddr)) {
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("It works!"))
+	})
+
 	var err error
 	address := util.ToAddr(host, port)
 	listener, err := net.Listen("tcp", address)

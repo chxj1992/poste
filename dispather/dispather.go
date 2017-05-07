@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/websocket"
 	"net"
 	"poste/util"
-	"net/http"
 	"poste/consul"
 )
 
@@ -33,16 +32,19 @@ var callback = func(values []*mailman.Mailman) {
 	mailmenWsClients = map[string]*websocket.Conn{}
 	mailmenTcp = []string{}
 
+	util.LogInfo("values %s", values)
 	// establish connection with every mailman server
 	for _, m := range values {
+
 		if m.ServerType == mailman.WsType {
 			mailmenWs = append(mailmenWs, m.Addr())
-			c, _, err := websocket.DefaultDialer.Dial("ws://" + m.Addr(), nil)
+			c, _, err := websocket.DefaultDialer.Dial("ws://" + m.Addr() + "/connect", nil)
 			if err != nil {
 				util.LogError("connect to mailman failed : %s", err)
 			}
 			mailmenWsClients[m.Addr()] = c
 		}
+
 		if m.ServerType == mailman.TcpType {
 			mailmenTcp = append(mailmenTcp, m.Addr())
 			//TODO : tcp mailman server
@@ -59,10 +61,6 @@ var callback = func(values []*mailman.Mailman) {
 func Serve(host string, port int) {
 	go mailman.Watch(callback)
 	go Consume()
-
-	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
-	})
 
 	consul.RegisterServiceAndServe("dispatcher", host, port, nil, beforeServe)
 }

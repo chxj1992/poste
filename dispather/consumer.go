@@ -11,6 +11,8 @@ import (
 	"poste/mailman"
 	"github.com/gorilla/websocket"
 	"poste/util"
+	"strings"
+	"poste/ticket"
 )
 
 func Consume() {
@@ -60,15 +62,21 @@ func consuming(queues []*beanstalk.Conn) {
 			continue
 		}
 		c.Delete(id)
-		util.LogInfo("get queue. ID : %s . data : %s", id, body)
+		util.LogInfo("get data from queue. ID : %s . data : %s", id, body)
 		json.Unmarshal(body, &d)
 
 		if d.ServerType == mailman.WsType {
-			addr, ok := mailmenWsRing.GetNode(d.Target)
+			t := util.Base64Decode(d.Target)
+			info := strings.Split(t, ticket.SepChar)
+			addr, ok := mailmenWsRing.GetNode(info[0])
 			if !ok {
 				util.LogError("get wsmailman failed. addr : %s", addr)
 			}
-			mailmenWsClients[addr].WriteMessage(websocket.TextMessage, d.Marshal())
+			if mailmenWsClients[addr] != nil {
+				mailmenWsClients[addr].WriteMessage(websocket.TextMessage, d.Marshal())
+			} else {
+				util.LogError("addr %s mailman connection hub not exists", addr)
+			}
 		}
 	}
 }

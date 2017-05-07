@@ -7,9 +7,15 @@ import (
 	"time"
 	"poste/consul"
 	"poste/util"
+	"poste/ticket"
 )
 
-func Send(target string, message string, serverType data.ServerType) {
+func Send(appId string, userId string, message string, serverType data.ServerType) {
+	target := ticket.GetTicket(userId, appId, false)
+	if target == "" {
+		util.LogError("target is not connected")
+		return
+	}
 	d := data.Data{Target:target, Message:message, ServerType:serverType}
 	bytes := d.Marshal()
 	c := beanstalkClient()

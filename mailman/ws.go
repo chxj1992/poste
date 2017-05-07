@@ -7,6 +7,7 @@ import (
 	"poste/data"
 	"poste/util"
 	"poste/consul"
+	"poste/ticket"
 )
 
 var upgrader = websocket.Upgrader{
@@ -25,17 +26,22 @@ type Client struct {
 var hub = map[string][]*Client{}
 
 func serveWs(host string, port int) {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/connect", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			util.LogError("serve websocket failed. error: %s", err)
 			return
 		}
 		client := &Client{conn: conn, send: make(chan []byte, 256)}
-		id := r.URL.Query().Get("id")
-		if id != "" {
-			hub[id] = append(hub[id], client)
-			util.LogInfo("user %s connected", id)
+
+		if t := r.URL.Query().Get("ticket"); t != "" {
+			info := ticket.GetUserInfo(t)
+			if info[0] == nil {
+				util.LogError("ticket invalid : %s", t)
+				return
+			}
+			hub[t] = append(hub[t], client)
+			util.LogInfo("ticket: %s app: %s user: %s connected", t, info[1], info[0])
 		}
 		go readWs(client)
 		writeWs(client)

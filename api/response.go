@@ -7,7 +7,7 @@ import (
 
 type Response struct {
 	Err  string `json:"err"`
-	Data string `json:"data"`
+	Data interface{} `json:"data"`
 }
 
 func (r Response)Marshal() (bytes []byte) {

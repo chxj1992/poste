@@ -2,10 +2,7 @@ package consul
 
 import (
 	"github.com/hashicorp/consul/api"
-	"crypto/md5"
 	"poste/util"
-	"io"
-	"fmt"
 )
 
 func Register(name ServiceType, host string, port int, tags []string) error {
@@ -16,6 +13,10 @@ func Register(name ServiceType, host string, port int, tags []string) error {
 		Address:host,
 		Port:port,
 		Tags:tags,
+		Check: &api.AgentServiceCheck{
+			HTTP: "http://" + util.ToAddr(host, port),
+			Interval: "10s",
+		},
 	}
 	return GetAgent().ServiceRegister(s)
 }
@@ -27,8 +28,6 @@ func Deregister(name ServiceType, host string, port int) error {
 
 func ServiceId(name ServiceType, host string, port int) string {
 	addr := util.ToAddr(host, port)
-	h := md5.New()
-	io.WriteString(h, addr)
-	sum := fmt.Sprintf("%x", h.Sum(nil))
+	sum := util.Md5(addr)
 	return string(name) + "_" + sum
 }
