@@ -20,28 +20,19 @@ var
 (
 	A = &Api{}
 
-	mailmenWs []string
-	mailmenWsRing *hashring.HashRing
-
-	//TODO:tcp mailman server
-	mailmenTcp []string
-	mailmenTcpRing *hashring.HashRing
+	mailmen []string
+	mailmenRing *hashring.HashRing
 )
+
 func mailmanCallback(values []*mailman.Mailman) {
-	mailmenWs = []string{}
-	mailmenTcp = []string{}
+	mailmen = []string{}
 
 	for _, m := range values {
-		if m.ServerType == mailman.WsType {
-			mailmenWs = append(mailmenWs, m.Addr())
-		}
+		mailmen = append(mailmen, m.Addr())
 	}
 
-	util.LogInfo("ws mailmen %s", mailmenWs)
-	mailmenWsRing = hashring.New(mailmenWs)
-
-	util.LogInfo("tcp mailmen %s", mailmenTcp)
-	mailmenTcpRing = hashring.New(mailmenTcp)
+	util.LogInfo("mailmen %s", mailmen)
+	mailmenRing = hashring.New(mailmen)
 }
 
 func Serve(host string, port int) {

@@ -8,7 +8,6 @@ import (
 	"syscall"
 	"poste/consul"
 	"poste/dispather"
-	"poste/data"
 	"poste/api"
 )
 
@@ -17,7 +16,6 @@ func main() {
 	var (
 		host string
 		port int
-		serverType string
 	)
 
 	var flags = []cli.Flag{
@@ -62,12 +60,7 @@ func main() {
 			Name:    "mailman",
 			Aliases: []string{"m"},
 			Usage:   "start a mailman server",
-			Flags: append(flags, cli.StringFlag{
-				Name: "type",
-				Value: string(mailman.WsType),
-				Usage: "mailman server type : ws or tcp",
-				Destination: &serverType,
-			}),
+			Flags: flags,
 			Action:  func(c *cli.Context) error {
 				ch := make(chan os.Signal, 2)
 				signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
@@ -76,7 +69,7 @@ func main() {
 					consul.Deregister(consul.Mailman, mailman.M.Host, mailman.M.Port)
 					os.Exit(1)
 				}()
-				mailman.Serve(host, port, data.ServerType(serverType))
+				mailman.Serve(host, port)
 				return nil
 			},
 		},

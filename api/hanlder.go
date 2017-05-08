@@ -13,7 +13,6 @@ import (
 	"runtime"
 	"path"
 	"gopkg.in/oauth2.v3"
-	"poste/mailman"
 )
 
 func handleRequest() {
@@ -51,18 +50,16 @@ func handleRequest() {
 			return
 		}
 
-		t := r.URL.Query().Get("type")
 		userId := r.URL.Query().Get("userId")
 		uuid := ticket.UUID(userId, ti.GetClientID())
-		if t == string(mailman.WsType) {
-			node, ok := mailmenWsRing.GetNode(uuid)
-			if !ok {
-				w.Write(Response{Err: "get mailman node failed"}.Marshal())
-			} else {
-				w.Write(Response{Data:map[string]string{"node": node}}.Marshal())
-			}
-			return
+
+		node, ok := mailmenRing.GetNode(uuid)
+		if !ok {
+			w.Write(Response{Err: "get mailman node failed"}.Marshal())
+		} else {
+			w.Write(Response{Data:map[string]string{"node": node}}.Marshal())
 		}
+		return
 
 		w.Write(Response{Err:"param type invalid"}.Marshal())
 		return

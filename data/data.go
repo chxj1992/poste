@@ -5,12 +5,9 @@ import (
 	"poste/util"
 )
 
-type ServerType string
-
 type Data struct {
-	Target     string `json:"target"`
-	ServerType ServerType `json:"type"`
-	Message    string `json:"message"`
+	Target  string `json:"target"`
+	Message string `json:"message"`
 }
 
 func (d Data)Marshal() (bytes []byte) {

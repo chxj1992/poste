@@ -17,34 +17,30 @@ type Dispatcher struct {
 var (
 	D = &Dispatcher{}
 
-	mailmenWs []string
-	mailmenWsClients map[string]*websocket.Conn
-	mailmenWsRing *hashring.HashRing
-
+	mailmen []string
+	mailmenClients map[string]*websocket.Conn
+	mailmenRing *hashring.HashRing
 )
 
 var callback = func(values []*mailman.Mailman) {
-	mailmenWs = []string{}
-	mailmenWsClients = map[string]*websocket.Conn{}
+	mailmen = []string{}
+	mailmenClients = map[string]*websocket.Conn{}
 
 	util.LogInfo("values %s", values)
 	// establish connection with every mailman server
 	for _, m := range values {
-
-		if m.ServerType == mailman.WsType {
-			mailmenWs = append(mailmenWs, m.Addr())
-			c, _, err := websocket.DefaultDialer.Dial("ws://" + m.Addr() + "/connect", nil)
-			if err != nil {
-				util.LogError("connect to mailman failed : %s", err)
-				continue
-			}
-			util.LogInfo("connected to ws mailman : %s", m.Addr())
-			mailmenWsClients[m.Addr()] = c
+		mailmen = append(mailmen, m.Addr())
+		c, _, err := websocket.DefaultDialer.Dial("ws://" + m.Addr() + "/connect", nil)
+		if err != nil {
+			util.LogError("connect to mailman failed : %s", err)
+			continue
 		}
+		util.LogInfo("connected to mailman : %s", m.Addr())
+		mailmenClients[m.Addr()] = c
 	}
 
-	util.LogInfo("ws mailmen %s", mailmenWs)
-	mailmenWsRing = hashring.New(mailmenWs)
+	util.LogInfo("mailmen %s", mailmen)
+	mailmenRing = hashring.New(mailmen)
 }
 
 func Serve(host string, port int) {

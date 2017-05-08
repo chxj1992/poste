@@ -8,6 +8,7 @@ import (
 	"poste/util"
 	"poste/consul"
 	"poste/ticket"
+	"net"
 )
 
 var upgrader = websocket.Upgrader{
@@ -26,7 +27,7 @@ type Client struct {
 
 var hub = map[string][]*Client{}
 
-func serveWs(host string, port int) {
+func handle(host string, port int) {
 	http.HandleFunc("/connect", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -48,14 +49,19 @@ func serveWs(host string, port int) {
 			util.LogInfo("ticket: %s app: %s user: %s connected", t, info[1], info[0])
 
 		}
-		go readWs(client)
-		writeWs(client)
+		go readPump(client)
+		writePump(client)
 	})
 
-	consul.RegisterServiceAndServe(consul.Mailman, host, port, []string{string(WsType)}, beforeServe)
+	consul.RegisterServiceAndServe(consul.Mailman, host, port, nil, beforeServe)
 }
 
-func readWs(c *Client) {
+func beforeServe(addr *net.TCPAddr) {
+	M.Host = addr.IP.String()
+	M.Port = addr.Port
+}
+
+func readPump(c *Client) {
 	defer func() {
 		c.conn.Close()
 	}()
@@ -76,7 +82,7 @@ func readWs(c *Client) {
 	}
 }
 
-func writeWs(c *Client) {
+func writePump(c *Client) {
 	defer func() {
 		c.conn.Close()
 	}()

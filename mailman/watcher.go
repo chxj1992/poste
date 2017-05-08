@@ -3,7 +3,6 @@ package mailman
 import (
 	"github.com/hashicorp/consul/api"
 	"poste/consul"
-	"poste/data"
 	"poste/util"
 )
 
@@ -19,7 +18,7 @@ func Watch(callback func(mailmen []*Mailman)) {
 		}
 		if services != nil {
 			for _, s := range services {
-				m := &Mailman{Host:s.Service.Address, Port:s.Service.Port, ServerType:data.ServerType(s.Service.Tags[0])}
+				m := &Mailman{Host:s.Service.Address, Port:s.Service.Port}
 				values = append(values, m)
 			}
 		}
