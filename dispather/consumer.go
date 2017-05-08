@@ -73,7 +73,10 @@ func consuming(queues []*beanstalk.Conn) {
 				util.LogError("get wsmailman failed. addr : %s", addr)
 			}
 			if mailmenWsClients[addr] != nil {
-				mailmenWsClients[addr].WriteMessage(websocket.TextMessage, d.Marshal())
+				err := mailmenWsClients[addr].WriteMessage(websocket.TextMessage, d.Marshal())
+				if err != nil {
+					util.LogError("dispatch message failed: %s", err)
+				}
 			} else {
 				util.LogError("addr %s mailman connection hub not exists", addr)
 			}

@@ -35,9 +35,6 @@ func mailmanCallback(values []*mailman.Mailman) {
 		if m.ServerType == mailman.WsType {
 			mailmenWs = append(mailmenWs, m.Addr())
 		}
-		if m.ServerType == mailman.TcpType {
-			mailmenTcp = append(mailmenTcp, m.Addr())
-		}
 	}
 
 	util.LogInfo("ws mailmen %s", mailmenWs)

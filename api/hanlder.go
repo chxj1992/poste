@@ -63,15 +63,6 @@ func handleRequest() {
 			}
 			return
 		}
-		if t == string(mailman.TcpType) {
-			node, ok := mailmenTcpRing.GetNode(uuid)
-			if !ok {
-				w.Write(Response{Err:"get mailman node failed"}.Marshal())
-			} else {
-				w.Write(Response{Data:map[string]string{"node": node}}.Marshal())
-			}
-			return
-		}
 
 		w.Write(Response{Err:"param type invalid"}.Marshal())
 		return

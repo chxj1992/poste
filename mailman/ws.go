@@ -19,8 +19,9 @@ var upgrader = websocket.Upgrader{
 }
 
 type Client struct {
-	conn *websocket.Conn
-	send chan []byte
+	conn   *websocket.Conn
+	send   chan []byte
+	ticket string
 }
 
 var hub = map[string][]*Client{}
@@ -32,16 +33,20 @@ func serveWs(host string, port int) {
 			util.LogError("serve websocket failed. error: %s", err)
 			return
 		}
-		client := &Client{conn: conn, send: make(chan []byte, 256)}
 
-		if t := r.URL.Query().Get("ticket"); t != "" {
-			info := ticket.GetUserInfo(t)
-			if info[0] == nil {
-				util.LogError("ticket invalid : %s", t)
-				return
-			}
+		t := r.URL.Query().Get("ticket")
+		info := ticket.GetUserInfo(t)
+		util.LogInfo("info %s", info)
+		if t != "" && info[0] == nil {
+			util.LogError("invalid ticket : %s", t)
+		}
+
+		client := &Client{conn: conn, send: make(chan []byte, 256), ticket:t}
+
+		if info[0] != nil {
 			hub[t] = append(hub[t], client)
 			util.LogInfo("ticket: %s app: %s user: %s connected", t, info[1], info[0])
+
 		}
 		go readWs(client)
 		writeWs(client)
