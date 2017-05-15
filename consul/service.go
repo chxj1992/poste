@@ -4,6 +4,7 @@ import (
 	"net"
 	"net/http"
 	"poste/util"
+	"github.com/hashicorp/consul/api"
 )
 
 type ServiceType string
@@ -34,7 +35,7 @@ func RegisterServiceAndServe(serviceType ServiceType, host string, port int, tag
 	defer func() {
 		Deregister(serviceType, addr.IP.String(), addr.Port)
 	}()
-	Register(serviceType, addr.IP.String(), addr.Port, tags)
+	Register(serviceType, addr.IP.String(), addr.Port, tags, nil)
 
 	if beforeServe != nil {
 		beforeServe(addr)
@@ -43,5 +44,31 @@ func RegisterServiceAndServe(serviceType ServiceType, host string, port int, tag
 	err = http.Serve(listener, nil)
 	if err != nil {
 		util.LogInfo("%s%s server start serve failed: %s", serviceType, tags, err)
+	}
+}
+
+func Clear(name ServiceType) {
+	services, _, _ := GetHealth().Service(string(name), "", false, nil)
+	for _, s := range services {
+		GetAgent().ServiceDeregister(s.Service.ID)
+	}
+}
+
+func Watch(name ServiceType, callback func(values []*api.ServiceEntry)) {
+	q := &api.QueryOptions{}
+	for {
+		pairs, meta, err := GetHealth().Service(string(name), "", true, q)
+		q.WaitIndex = meta.LastIndex
+
+		values := []*api.ServiceEntry{}
+		if err != nil {
+			util.LogError("consul service get value failed. error : %s", err)
+		}
+		if pairs != nil {
+			for _, pair := range pairs {
+				values = append(values, pair)
+			}
+		}
+		callback(values)
 	}
 }

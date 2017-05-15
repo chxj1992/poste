@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"poste/dispather"
 	"poste/api"
+	"poste/config"
 )
 
 func main() {
@@ -38,6 +39,15 @@ func main() {
 	app.Description = "a lightweight, distributed, realtime message server"
 
 	app.Commands = []cli.Command{
+		{
+			Name:    "init",
+			Aliases: []string{"i"},
+			Usage:   "init configuration to consul service",
+			Action:  func(c *cli.Context) error {
+				config.Init()
+				return nil
+			},
+		},
 		{
 			Name:    "dispatcher",
 			Aliases: []string{"d"},

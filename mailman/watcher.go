@@ -4,7 +4,6 @@ import (
 	"github.com/hashicorp/consul/api"
 	"poste/consul"
 	"poste/util"
-	"time"
 )
 
 var (
@@ -14,9 +13,7 @@ var (
 )
 
 func Watch(callback func(mailmen []*Mailman)) {
-	q := &api.QueryOptions{
-		WaitTime: 60 * time.Minute,
-	}
+	q := &api.QueryOptions{}
 	update <- 1
 	for {
 		select {
@@ -31,7 +28,7 @@ func Watch(callback func(mailmen []*Mailman)) {
 }
 
 func updateFromConsul(q *api.QueryOptions) {
-	services, meta, err := consul.GetHealth().Service(string(consul.Mailman), "", false, q)
+	services, meta, err := consul.GetHealth().Service(string(consul.Mailman), "", true, q)
 	q.WaitIndex = meta.LastIndex
 
 	mailmenValues = []*Mailman{}

@@ -5,7 +5,7 @@ import (
 	"poste/util"
 )
 
-func Register(name ServiceType, host string, port int, tags []string) error {
+func Register(name ServiceType, host string, port int, tags []string, check *api.AgentServiceCheck) error {
 	util.LogInfo("%s service %s registered", name, util.ToAddr(host, port))
 	s := &api.AgentServiceRegistration{
 		ID:ServiceId(name, host, port),
@@ -13,10 +13,14 @@ func Register(name ServiceType, host string, port int, tags []string) error {
 		Address:host,
 		Port:port,
 		Tags:tags,
-		Check: &api.AgentServiceCheck{
+	}
+	if check == nil {
+		s.Check = &api.AgentServiceCheck{
 			HTTP: "http://" + util.ToAddr(host, port),
 			Interval: "10s",
-		},
+		}
+	} else {
+		s.Check = check
 	}
 	return GetAgent().ServiceRegister(s)
 }

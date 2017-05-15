@@ -6,7 +6,7 @@ import (
 )
 
 func TestRegister(t *testing.T) {
-	assert.Nil(t, Register("test", "127.0.0.1", 12345, nil))
+	assert.Nil(t, Register("test", "127.0.0.1", 12345, nil, nil))
 }
 
 func TestServiceId(t *testing.T) {
