@@ -12,6 +12,7 @@ import (
 	"poste/util"
 	"strings"
 	"poste/ticket"
+	"poste/mailman"
 )
 
 func Consume() {
@@ -60,12 +61,17 @@ func consuming(queues []*beanstalk.Conn) {
 		if err != nil {
 			continue
 		}
-		c.Delete(id)
 		util.LogInfo("get data from queue. ID : %s . data : %s", id, body)
 		json.Unmarshal(body, &d)
 
 		t := util.Base64Decode(d.Target)
 		info := strings.Split(t, ticket.SepChar)
+
+		if mailmenRing == nil {
+			time.Sleep(time.Second)
+			continue
+		}
+
 		addr, ok := mailmenRing.GetNode(info[0])
 		if !ok {
 			util.LogError("get mailman failed. addr : %s", addr)
@@ -74,6 +80,11 @@ func consuming(queues []*beanstalk.Conn) {
 			err := mailmenClients[addr].WriteMessage(websocket.TextMessage, d.Marshal())
 			if err != nil {
 				util.LogError("dispatch message failed: %s", err)
+				mailman.Refresh <- 1
+				util.LogError("refresh connection %s", err)
+			} else {
+				util.LogInfo("message sent : %s", string(d.Marshal()))
+				c.Delete(id)
 			}
 		} else {
 			util.LogError("addr %s mailman connection hub not exists", addr)

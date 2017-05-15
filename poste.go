@@ -6,7 +6,6 @@ import (
 	"poste/mailman"
 	"os/signal"
 	"syscall"
-	"poste/consul"
 	"poste/dispather"
 	"poste/api"
 )
@@ -49,7 +48,7 @@ func main() {
 				signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 				go func() {
 					<-ch
-					consul.Deregister(consul.Dispatcher, dispather.D.Host, dispather.D.Port)
+					dispather.OnShutDown()
 					os.Exit(1)
 				}()
 				dispather.Serve(host, port)
@@ -66,7 +65,7 @@ func main() {
 				signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 				go func() {
 					<-ch
-					consul.Deregister(consul.Mailman, mailman.M.Host, mailman.M.Port)
+					mailman.OnShutDown()
 					os.Exit(1)
 				}()
 				mailman.Serve(host, port)
@@ -83,7 +82,7 @@ func main() {
 				signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 				go func() {
 					<-ch
-					consul.Deregister(consul.Api, api.A.Host, api.A.Port)
+					api.OnShutDown()
 					os.Exit(1)
 				}()
 				api.Serve(host, port)

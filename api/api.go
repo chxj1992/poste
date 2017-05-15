@@ -35,11 +35,20 @@ func mailmanCallback(values []*mailman.Mailman) {
 	mailmenRing = hashring.New(mailmen)
 }
 
+func OnShutDown() {
+	util.LogInfo("api service is shutting down ...")
+	consul.Deregister(consul.Api, A.Host, A.Port)
+	util.LogInfo("done!")
+}
+
 func Serve(host string, port int) {
-	oauthSvr = buildSrv()
+	defer func() {
+		OnShutDown()
+	}()
 
 	go mailman.Watch(mailmanCallback)
 
+	oauthSvr = buildSrv()
 	handleRequest()
 
 	consul.RegisterServiceAndServe("api", host, port, nil, beforeServe)

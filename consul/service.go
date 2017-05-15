@@ -12,6 +12,8 @@ const (
 	Dispatcher ServiceType = "dispatcher"
 	Mailman ServiceType = "mailman"
 	Api ServiceType = "api"
+	Redis ServiceType = "redis"
+	Queue ServiceType = "queue"
 )
 
 func RegisterServiceAndServe(serviceType ServiceType, host string, port int, tags []string, beforeServe func(addr *net.TCPAddr)) {
