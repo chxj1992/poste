@@ -10,6 +10,15 @@ import (
 	"encoding/base64"
 )
 
+func InSlice(item string, slice []string) bool {
+	for _, v := range slice {
+		if item == v {
+			return true
+		}
+	}
+	return false
+}
+
 func ToAddr(host string, port int) string {
 	if port == 0 {
 		return host

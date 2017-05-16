@@ -43,6 +43,7 @@ var mailmanCallback = func(values []*mailman.Mailman) {
 	mailmenClients = map[string]*websocket.Conn{}
 
 	util.LogInfo("watching mailmen returned %s", values)
+
 	// establish connection with every mailman server
 	for _, m := range values {
 		mailmen = append(mailmen, m.Addr())
@@ -57,14 +58,7 @@ var mailmanCallback = func(values []*mailman.Mailman) {
 	}
 
 	util.LogInfo("mailmen %s", mailmen)
-
-	prevMailmanRing := mailmenRing
 	mailmenRing = hashring.New(mailmen)
-
-	if prevMailmanRing != nil && mailmenRing.Size() > prevMailmanRing.Size() {
-		util.LogInfo("new mailmen server registered")
-
-	}
 }
 
 func Serve(host string, port int) {

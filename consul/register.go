@@ -26,7 +26,7 @@ func Register(name ServiceType, host string, port int, tags []string, check *api
 }
 
 func Deregister(name ServiceType, host string, port int) error {
-	util.LogInfo("%s service %s deregistered", name, util.ToAddr(host, port))
+	util.LogInfo("%s service %s is deregistered for consul", name, util.ToAddr(host, port))
 	return GetAgent().ServiceDeregister(ServiceId(name, host, port))
 }
 

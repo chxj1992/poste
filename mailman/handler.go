@@ -8,7 +8,6 @@ import (
 	"poste/util"
 	"poste/consul"
 	"poste/ticket"
-	"net"
 )
 
 var upgrader = websocket.Upgrader{
@@ -25,7 +24,7 @@ type Client struct {
 	ticket string
 }
 
-var hub = map[string][]*Client{}
+var userHubs = map[string][]*Client{}
 
 func handle(host string, port int) {
 	http.HandleFunc("/connect", func(w http.ResponseWriter, r *http.Request) {
@@ -38,8 +37,6 @@ func handle(host string, port int) {
 		t := r.URL.Query().Get("ticket")
 		info := ticket.GetUserInfo(t)
 
-		util.LogInfo("%s %s", t, info)
-
 		if t != "" && (len(info) < 2 || info[0] == nil || info[1] == nil) {
 			util.LogError("invalid ticket : %s", t)
 			return
@@ -48,7 +45,7 @@ func handle(host string, port int) {
 		client := &Client{conn: conn, send: make(chan []byte, 256), ticket:t}
 
 		if t != "" {
-			hub[t] = append(hub[t], client)
+			userHubs[t] = append(userHubs[t], client)
 			util.LogInfo("ticket: %s app: %s user: %s connected", t, info[1], info[0])
 		}
 
@@ -59,15 +56,9 @@ func handle(host string, port int) {
 	consul.RegisterServiceAndServe(consul.Mailman, host, port, nil, beforeServe)
 }
 
-func beforeServe(addr *net.TCPAddr) {
-	M.Host = addr.IP.String()
-	M.Port = addr.Port
-}
-
 func readPump(c *Client) {
 	defer func() {
-		removeFromHub(c)
-		c.conn.Close()
+		c.disconnect(false)
 	}()
 	for {
 		_, message, err := c.conn.ReadMessage()
@@ -80,13 +71,16 @@ func readPump(c *Client) {
 
 		util.LogInfo("message received : %s", string(message))
 		d := data.Data{}
-		json.Unmarshal(message, &d)
-
-		if len(hub[d.Target]) == 0 {
-			util.LogError("target %s not exists on this node", d.Target)
-			break
+		err = json.Unmarshal(message, &d)
+		if err != nil {
+			util.LogError("invalid data structure : %s", string(message))
+			continue
 		}
-		for _, t := range hub[d.Target] {
+		if len(userHubs[d.Target]) == 0 {
+			util.LogError("target %s not exists on this node", d.Target)
+			continue
+		}
+		for _, t := range userHubs[d.Target] {
 			t.send <- []byte(d.Message)
 		}
 	}
@@ -94,8 +88,7 @@ func readPump(c *Client) {
 
 func writePump(c *Client) {
 	defer func() {
-		removeFromHub(c)
-		c.conn.Close()
+		c.disconnect(false)
 	}()
 	for {
 		message, ok := <-c.send
@@ -117,27 +110,28 @@ func writePump(c *Client) {
 	}
 }
 
-func removeFromHub(c *Client) {
-
+func (c *Client) disconnect(silent bool) {
 	m := websocket.FormatCloseMessage(websocket.CloseNormalClosure, "closed by server")
 	c.conn.WriteMessage(websocket.CloseMessage, m)
 
-	if c.ticket == "" || len(hub[c.ticket]) == 0 {
+	if c.ticket == "" || len(userHubs[c.ticket]) == 0 {
 		return
 	}
 
 	clients := []*Client{}
-	for _, client := range hub[c.ticket] {
+	for _, client := range userHubs[c.ticket] {
 		if client != c {
 			clients = append(clients)
 		}
 	}
 
-	hub[c.ticket] = clients
+	userHubs[c.ticket] = clients
 
-	if len(clients) == 0 {
-		util.LogInfo("target %s is offline", c.ticket)
-	} else {
-		util.LogInfo("target %s closed 1 connection", c.ticket)
+	if !silent {
+		if len(clients) == 0 {
+			util.LogInfo("target %s is offline", c.ticket)
+		} else {
+			util.LogInfo("target %s closed 1 connection", c.ticket)
+		}
 	}
 }
