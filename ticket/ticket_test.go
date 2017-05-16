@@ -5,7 +5,6 @@ import (
 	"log"
 )
 
-
 func TestBind(t *testing.T) {
 	log.Print(GetTicket("111", "0001", true))
 }

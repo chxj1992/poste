@@ -3,7 +3,6 @@ package mailbox
 import (
 	"poste/data"
 	"github.com/kr/beanstalk"
-	"log"
 	"time"
 	"poste/consul"
 	"poste/util"
@@ -19,18 +18,26 @@ func Send(appId string, userId string, message string) {
 	d := data.Data{Target:target, Message:message}
 	bytes := d.Marshal()
 	c := beanstalkClient()
+	if c == nil {
+		return
+	}
 	_, err := c.Put(bytes, 1, 0, time.Minute)
 	if err != nil {
-		log.Printf("beanstalk client send failed. error : %s", err)
+		util.LogError("beanstalk client send failed. error : %s", err)
 	}
 }
 
 func beanstalkClient() *beanstalk.Conn {
-	values := consul.KVValues("queue")
-	c, err := beanstalk.Dial("tcp", util.Random(values))
-	if err != nil {
-		log.Printf("beanstalk client get failed. error : %s", err)
-		panic(err)
+	services := consul.Get(consul.Queue)
+	if len(services) < 1 {
+		util.LogError("queue service is not started")
+		return nil
 	}
+	c, err := beanstalk.Dial("tcp", util.ToAddr(services[0].Host, services[0].Port))
+	if err != nil {
+		util.LogError("beanstalk client get failed. error : %s", err)
+		return nil
+	}
+
 	return c
 }

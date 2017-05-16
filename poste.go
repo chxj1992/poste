@@ -9,6 +9,7 @@ import (
 	"poste/dispather"
 	"poste/api"
 	"poste/config"
+	"poste/util"
 )
 
 func main() {
@@ -31,6 +32,11 @@ func main() {
 			Usage: "server port",
 			Destination: &port,
 		},
+		cli.BoolFlag{
+			Name:  "debug",
+			Usage: "display debug info",
+			Destination: &util.Debugging,
+		},
 	}
 
 	app := cli.NewApp()
@@ -44,6 +50,9 @@ func main() {
 			Aliases: []string{"i"},
 			Usage:   "init configuration to consul service",
 			Action:  func(c *cli.Context) error {
+				if util.Debugging {
+					util.LogDebug("debug mode")
+				}
 				config.Init()
 				return nil
 			},
@@ -61,6 +70,10 @@ func main() {
 					dispather.OnShutDown()
 					os.Exit(1)
 				}()
+
+				if util.Debugging {
+					util.LogDebug("debug mode")
+				}
 				dispather.Serve(host, port)
 				return nil
 			},
@@ -78,6 +91,10 @@ func main() {
 					mailman.OnShutDown()
 					os.Exit(1)
 				}()
+
+				if util.Debugging {
+					util.LogDebug("debug mode")
+				}
 				mailman.Serve(host, port)
 				return nil
 			},
@@ -95,6 +112,10 @@ func main() {
 					api.OnShutDown()
 					os.Exit(1)
 				}()
+
+				if util.Debugging {
+					util.LogDebug("debug mode")
+				}
 				api.Serve(host, port)
 				return nil
 			},

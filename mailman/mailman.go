@@ -26,15 +26,15 @@ func (m *Mailman)Addr() string {
 func OnShutDown() {
 	util.LogInfo("mailman is shutting down ...")
 	consul.Deregister(consul.Mailman, M.Host, M.Port)
-	Retire()
-	util.LogInfo("done!")
+	FlushConn()
+	util.LogInfo("retired!")
 }
 
-func Retire() {
+func FlushConn() {
 	count := 0
 	for _, hub := range userHubs {
 		for _, c := range hub {
-			c.disconnect(true)
+			c.disconnect()
 		}
 		count += 1
 	}
@@ -54,16 +54,28 @@ var mailmanCallback = func(values []*Mailman) {
 	mailmenRing = hashring.New(mailmen)
 
 	if newMailman != "" && newMailman != M.Addr() {
-		util.LogInfo("a new mailmen server registered : %s", newMailman)
+
+		util.LogInfo("a new mailmen service registered : %s", newMailman)
+
+		for _, m := range mailmen {
+			position, _ := mailmenRing.GetNodePos(m)
+			util.LogDebug("position of %s : %s", m, position)
+		}
+
 		newMailmanPosition, _ := mailmenRing.GetNodePos(newMailman)
 		currentPosition, _ := mailmenRing.GetNodePos(M.Addr())
 		currentDistance := math.Abs(float64(newMailmanPosition - currentPosition))
+
+		util.LogDebug("distance between the current service and the new one : %s", currentDistance)
 
 		count := 0
 		for _, m := range mailmen {
 			position, _ := mailmenRing.GetNodePos(m)
 			distance := math.Abs(float64(newMailmanPosition - position))
-			if  distance != 0 && distance < currentDistance {
+
+			util.LogDebug("distance between mailman service %s and the new one : %s", m, distance)
+
+			if distance != 0 && distance < currentDistance {
 				count += 1
 			}
 			if count >= 2 {
@@ -71,8 +83,8 @@ var mailmanCallback = func(values []*Mailman) {
 			}
 		}
 
-		util.LogInfo("current mailman is next to the new one")
-		Retire()
+		util.LogDebug("current mailman is next to the new one")
+		FlushConn()
 	}
 }
 

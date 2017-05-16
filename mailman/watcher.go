@@ -18,10 +18,10 @@ func Watch(callback func(mailmen []*Mailman)) {
 	for {
 		select {
 		case <-update:
-			util.LogInfo("update mailmen connection configuration from consul")
+			util.LogDebug("update mailmen connection configuration from consul")
 			updateFromConsul(q)
 		case <-Refresh:
-			util.LogInfo("refresh mailmen connection configuration")
+			util.LogDebug("refresh mailmen connection configuration")
 		}
 		callback(mailmenValues)
 	}

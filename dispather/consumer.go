@@ -2,7 +2,6 @@ package dispather
 
 import (
 	"poste/consul"
-	"log"
 	"github.com/hashicorp/consul/api"
 	"poste/data"
 	"github.com/kr/beanstalk"
@@ -17,19 +16,19 @@ import (
 
 func Consume() {
 	var count = 0
-	consul.KVWatch("queue", func(values []*api.KVPair) {
+	consul.Watch("queue", func(values []*api.ServiceEntry) {
 		queues := getQueues(values)
 
 		// only keep the latest consumers loop
 		var work = make(chan int, 1)
 		count += 1
 		work <- count
-		util.LogInfo("watching queue. %s", values)
+		util.LogDebug("watching queue. %s", values)
 		go func() {
 			for {
 				v := <-work
 				if v != count {
-					log.Printf("consumer version: %s, current version: %s", v, count)
+					util.LogDebug("consumer version: %s, current version: %s", v, count)
 					break;
 				} else {
 					work <- v
@@ -40,13 +39,13 @@ func Consume() {
 	})
 }
 
-func getQueues(values []*api.KVPair) []*beanstalk.Conn {
+func getQueues(values []*api.ServiceEntry) []*beanstalk.Conn {
 	queues := []*beanstalk.Conn{}
-	for _, pair := range values {
-		c, err := beanstalk.Dial("tcp", string(pair.Value))
+	for _, service := range values {
+		c, err := beanstalk.Dial("tcp", util.ToAddr(service.Service.Address, service.Service.Port))
 		if err != nil {
 			util.LogError("get queue failed. error %s", err)
-			consul.KVDelete(string(pair.Key))
+			consul.Deregister(consul.Queue, service.Service.Address, service.Service.Port)
 			continue
 		}
 		queues = append(queues, c)
@@ -61,7 +60,7 @@ func consuming(queues []*beanstalk.Conn) {
 		if err != nil {
 			continue
 		}
-		util.LogInfo("get data from queue. ID : %s . data : %s", id, body)
+		util.LogDebug("get data from queue. ID : %s . data : %s", id, body)
 		json.Unmarshal(body, &d)
 
 		t := util.Base64Decode(d.Target)
@@ -83,7 +82,7 @@ func consuming(queues []*beanstalk.Conn) {
 				mailman.Refresh <- 1
 				util.LogError("refresh connection %s", err)
 			} else {
-				util.LogInfo("message sent : %s", string(d.Marshal()))
+				util.LogDebug("message sent : %s", string(d.Marshal()))
 				c.Delete(id)
 			}
 		} else {

@@ -33,7 +33,7 @@ func RegisterServiceAndServe(serviceType ServiceType, host string, port int, tag
 	address := util.ToAddr(host, port)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
-		util.LogInfo("%s%s server start listen failed: %s", serviceType, tags, err)
+		util.LogError("%s%s server start listen failed: %s", serviceType, tags, err)
 	}
 
 	util.LogInfo("%s%s serves on %s", serviceType, tags, listener.Addr().String())
@@ -49,7 +49,7 @@ func RegisterServiceAndServe(serviceType ServiceType, host string, port int, tag
 
 	err = http.Serve(listener, nil)
 	if err != nil {
-		util.LogInfo("%s%s server start serve failed: %s", serviceType, tags, err)
+		util.LogError("%s%s server start serve failed: %s", serviceType, tags, err)
 	}
 }
 

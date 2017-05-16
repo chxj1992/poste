@@ -46,7 +46,7 @@ func handle(host string, port int) {
 
 		if t != "" {
 			userHubs[t] = append(userHubs[t], client)
-			util.LogInfo("ticket: %s app: %s user: %s connected", t, info[1], info[0])
+			util.LogDebug("ticket: %s app: %s user: %s connected", t, info[1], info[0])
 		}
 
 		go readPump(client)
@@ -58,7 +58,7 @@ func handle(host string, port int) {
 
 func readPump(c *Client) {
 	defer func() {
-		c.disconnect(false)
+		c.disconnect()
 	}()
 	for {
 		_, message, err := c.conn.ReadMessage()
@@ -69,7 +69,7 @@ func readPump(c *Client) {
 			break
 		}
 
-		util.LogInfo("message received : %s", string(message))
+		util.LogDebug("message received : %s", string(message))
 		d := data.Data{}
 		err = json.Unmarshal(message, &d)
 		if err != nil {
@@ -88,7 +88,7 @@ func readPump(c *Client) {
 
 func writePump(c *Client) {
 	defer func() {
-		c.disconnect(false)
+		c.disconnect()
 	}()
 	for {
 		message, ok := <-c.send
@@ -110,7 +110,7 @@ func writePump(c *Client) {
 	}
 }
 
-func (c *Client) disconnect(silent bool) {
+func (c *Client) disconnect() {
 	m := websocket.FormatCloseMessage(websocket.CloseNormalClosure, "closed by server")
 	c.conn.WriteMessage(websocket.CloseMessage, m)
 
@@ -127,11 +127,9 @@ func (c *Client) disconnect(silent bool) {
 
 	userHubs[c.ticket] = clients
 
-	if !silent {
-		if len(clients) == 0 {
-			util.LogInfo("target %s is offline", c.ticket)
-		} else {
-			util.LogInfo("target %s closed 1 connection", c.ticket)
-		}
+	if len(clients) == 0 {
+		util.LogDebug("target %s is offline", c.ticket)
+	} else {
+		util.LogDebug("target %s closed 1 connection", c.ticket)
 	}
 }

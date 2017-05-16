@@ -6,7 +6,7 @@ import (
 )
 
 func Register(name ServiceType, host string, port int, tags []string, check *api.AgentServiceCheck) error {
-	util.LogInfo("%s service %s registered", name, util.ToAddr(host, port))
+	util.LogInfo("%s service %s is registered for consul", name, util.ToAddr(host, port))
 	s := &api.AgentServiceRegistration{
 		ID:ServiceId(name, host, port),
 		Name:string(name),

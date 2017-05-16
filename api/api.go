@@ -31,14 +31,14 @@ func mailmanCallback(values []*mailman.Mailman) {
 		mailmen = append(mailmen, m.Addr())
 	}
 
-	util.LogInfo("mailmen %s", mailmen)
+	util.LogDebug("mailmen %s", mailmen)
 	mailmenRing = hashring.New(mailmen)
 }
 
 func OnShutDown() {
 	util.LogInfo("api service is shutting down ...")
 	consul.Deregister(consul.Api, A.Host, A.Port)
-	util.LogInfo("done!")
+	util.LogInfo("retired!")
 }
 
 func Serve(host string, port int) {
