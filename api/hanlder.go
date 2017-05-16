@@ -10,9 +10,8 @@ import (
 	"poste/util"
 	"poste/ticket"
 	"github.com/go-oauth2/redis"
-	"runtime"
-	"path"
 	"gopkg.in/oauth2.v3"
+	"poste/consul"
 )
 
 func handleRequest() {
@@ -39,30 +38,15 @@ func handleRequest() {
 
 		userId := r.URL.Query().Get("userId")
 		t := ticket.GetTicket(userId, ti.GetClientID(), true)
-
-		w.Write(Response{Data:map[string]string{"ticket":t}}.Marshal())
-	})
-
-	http.HandleFunc("/mailman", func(w http.ResponseWriter, r *http.Request) {
-		ti, err := Verify(r)
-		if err != nil {
-			w.Write(Response{Err:err.Error()}.Marshal())
-			return
-		}
-
-		userId := r.URL.Query().Get("userId")
 		uuid := ticket.UUID(userId, ti.GetClientID())
 
 		node, ok := mailmenRing.GetNode(uuid)
+
 		if !ok {
 			w.Write(Response{Err: "get mailman node failed"}.Marshal())
 		} else {
-			w.Write(Response{Data:map[string]string{"node": node}}.Marshal())
+			w.Write(Response{Data:map[string]string{"node": node, "ticket":t}}.Marshal())
 		}
-		return
-
-		w.Write(Response{Err:"param type invalid"}.Marshal())
-		return
 	})
 
 }
@@ -95,10 +79,15 @@ func buildSrv() (srv *server.Server) {
 func buildManager() (manager *manage.Manager) {
 	manager = manage.NewDefaultManager()
 
-	_, filename, _, _ := runtime.Caller(1)
-	configPath := path.Join(path.Dir(filename), "../config/redis.json")
-	redisConf := redis.Config{}
-	configor.Load(&redisConf, configPath)
+	services := consul.Get(consul.Redis)
+	if len(services) <= 0 {
+		util.LogError("redis is not currently available")
+		return
+	}
+	service := services[0]
+	redisConf := redis.Config{
+		Addr: util.ToAddr(service.Host, service.Port),
+	}
 	manager.MustTokenStorage(redis.NewTokenStore(&redisConf))
 
 	clientStore := oauthStore.NewClientStore()

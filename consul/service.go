@@ -17,6 +17,12 @@ const (
 	Queue ServiceType = "queue"
 )
 
+type Service struct {
+	Name ServiceType
+	Host string
+	Port int
+}
+
 func RegisterServiceAndServe(serviceType ServiceType, host string, port int, tags []string, beforeServe func(addr *net.TCPAddr)) {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -45,6 +51,20 @@ func RegisterServiceAndServe(serviceType ServiceType, host string, port int, tag
 	if err != nil {
 		util.LogInfo("%s%s server start serve failed: %s", serviceType, tags, err)
 	}
+}
+
+func Get(name ServiceType) []*Service {
+	services, _, _ := GetHealth().Service(string(name), "", true, nil)
+
+	values := []*Service{}
+	for _, s := range services {
+		values = append(values, &Service{
+			Name: name,
+			Host:s.Service.Address,
+			Port:s.Service.Port,
+		})
+	}
+	return values
 }
 
 func Clear(name ServiceType) {

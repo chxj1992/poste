@@ -5,9 +5,8 @@ import (
 	"runtime"
 	"path"
 	"github.com/jinzhu/configor"
-	"net"
 	"github.com/hashicorp/consul/api"
-	"strconv"
+	"poste/util"
 )
 
 func Init() {
@@ -20,14 +19,11 @@ func registerRedis() {
 
 	_, filename, _, _ := runtime.Caller(1)
 	configPath := path.Join(path.Dir(filename), "../config/redis.json")
-	redisConf := map[string]string{}
+	redisConf := consul.Service{}
 	configor.Load(&redisConf, configPath)
 
-	host, port, _ := net.SplitHostPort(redisConf["Addr"])
-	p, _ := strconv.Atoi(port)
-
-	consul.Register(consul.Redis, host, p, nil, &api.AgentServiceCheck{
-		TCP: redisConf["Addr"],
+	consul.Register(consul.Redis, redisConf.Host, redisConf.Port, nil, &api.AgentServiceCheck{
+		TCP: util.ToAddr(redisConf.Host, redisConf.Port),
 		Interval: "10s",
 	})
 }
@@ -37,14 +33,12 @@ func registerQueue() {
 
 	_, filename, _, _ := runtime.Caller(1)
 	configPath := path.Join(path.Dir(filename), "../config/queues.json")
-	queueConfigs := []map[string]string{}
+	queueConfigs := []consul.Service{}
 	configor.Load(&queueConfigs, configPath)
 
 	for _, queueConfig := range queueConfigs {
-		host, port, _ := net.SplitHostPort(queueConfig["Addr"])
-		p, _ := strconv.Atoi(port)
-		consul.Register(consul.Queue, host, p, nil, &api.AgentServiceCheck{
-			TCP: queueConfig["Addr"],
+		consul.Register(consul.Queue, queueConfig.Host, queueConfig.Port, nil, &api.AgentServiceCheck{
+			TCP: util.ToAddr(queueConfig.Host, queueConfig.Port),
 			Interval: "10s",
 		})
 	}

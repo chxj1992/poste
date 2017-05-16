@@ -36,7 +36,7 @@ func closeMailmanConn() {
 	}
 }
 
-var callback = func(values []*mailman.Mailman) {
+var mailmanCallback = func(values []*mailman.Mailman) {
 	closeMailmanConn()
 
 	mailmen = []string{}
@@ -57,7 +57,14 @@ var callback = func(values []*mailman.Mailman) {
 	}
 
 	util.LogInfo("mailmen %s", mailmen)
+
+	prevMailmanRing := mailmenRing
 	mailmenRing = hashring.New(mailmen)
+
+	if prevMailmanRing != nil && mailmenRing.Size() > prevMailmanRing.Size() {
+		util.LogInfo("new mailmen server registered")
+
+	}
 }
 
 func Serve(host string, port int) {
@@ -65,7 +72,7 @@ func Serve(host string, port int) {
 		OnShutDown()
 	}()
 
-	go mailman.Watch(callback)
+	go mailman.Watch(mailmanCallback)
 	go Consume()
 
 	consul.RegisterServiceAndServe("dispatcher", host, port, nil, beforeServe)

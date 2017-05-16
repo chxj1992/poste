@@ -37,16 +37,21 @@ func handle(host string, port int) {
 
 		t := r.URL.Query().Get("ticket")
 		info := ticket.GetUserInfo(t)
-		if t != "" && info[0] == nil {
+
+		util.LogInfo("%s %s", t, info)
+
+		if t != "" && (len(info) < 2 || info[0] == nil || info[1] == nil) {
 			util.LogError("invalid ticket : %s", t)
+			return
 		}
 
 		client := &Client{conn: conn, send: make(chan []byte, 256), ticket:t}
 
-		if len(info) > 0 && info[0] != nil {
+		if t != "" {
 			hub[t] = append(hub[t], client)
 			util.LogInfo("ticket: %s app: %s user: %s connected", t, info[1], info[0])
 		}
+
 		go readPump(client)
 		writePump(client)
 	})
@@ -68,7 +73,7 @@ func readPump(c *Client) {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
-				util.LogError("connection is unexpected closed : %s", err)
+				util.LogError("reading connection is unexpected closed : %s", err)
 			}
 			break
 		}
@@ -96,7 +101,6 @@ func writePump(c *Client) {
 		message, ok := <-c.send
 		if !ok {
 			util.LogError("get message from sending channel failed.")
-			c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 			break
 		}
 
@@ -114,6 +118,10 @@ func writePump(c *Client) {
 }
 
 func removeFromHub(c *Client) {
+
+	m := websocket.FormatCloseMessage(websocket.CloseNormalClosure, "closed by server")
+	c.conn.WriteMessage(websocket.CloseMessage, m)
+
 	if c.ticket == "" || len(hub[c.ticket]) == 0 {
 		return
 	}

@@ -11,6 +11,9 @@ import (
 )
 
 func ToAddr(host string, port int) string {
+	if port == 0 {
+		return host
+	}
 	return host + ":" + strconv.Itoa(port)
 }
 

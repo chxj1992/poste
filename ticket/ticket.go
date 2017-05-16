@@ -3,19 +3,23 @@ package ticket
 import (
 	"github.com/go-redis/redis"
 	"poste/util"
-	"github.com/jinzhu/configor"
-	"path"
-	"runtime"
 	"time"
+	"poste/consul"
 )
 
 const SepChar = "#"
 
 func Client() *redis.Client {
-	_, filename, _, _ := runtime.Caller(1)
-	configPath := path.Join(path.Dir(filename), "../config/redis.json")
-	redisConf := redis.Options{}
-	configor.Load(&redisConf, configPath)
+	services := consul.Get(consul.Redis)
+	if len(services) <= 0 {
+		util.LogError("redis is not currently available")
+		return nil
+	}
+	service := services[0]
+	redisConf := redis.Options{
+		Addr: util.ToAddr(service.Host, service.Port),
+	}
+
 	return redis.NewClient(&redisConf)
 }
 

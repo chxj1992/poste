@@ -1,3 +1,4 @@
 {
-  "Addr": "redis:6379"
+  "Host": "redis",
+  "Port": 6379
 }

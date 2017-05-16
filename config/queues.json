@@ -1,5 +1,6 @@
 [
   {
-    "Addr": "beanstalkd:11300"
+    "Host": "beanstalkd",
+    "Port": 11300
   }
 ]
