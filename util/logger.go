@@ -1,31 +1,28 @@
 package util
 
-import "log"
+import "github.com/op/go-logging"
+
+var log = logging.MustGetLogger("logger")
+
+var f = logging.MustStringFormatter(
+	`%{color}%{time:15:04:05.000} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}`,
+)
 
 var Debugging = false
 
-type LogLevel string
-
-const (
-	Error LogLevel = "ERROR"
-	Info LogLevel = "INFO"
-	Debug LogLevel = "DEBUG"
-)
-
-func Log(level LogLevel, format string, v ...interface{}) {
-	log.Printf("[" + string(level) + "] " + format, v...)
-}
-
 func LogError(format string, v ...interface{}) {
-	Log(Error, format, v...)
+	logging.SetFormatter(f)
+	log.Errorf(format, v...)
 }
 
 func LogInfo(format string, v ...interface{}) {
-	Log(Info, format, v...)
+	logging.SetFormatter(f)
+	log.Infof(format, v...)
 }
 
 func LogDebug(format string, v ...interface{}) {
 	if Debugging {
-		Log(Debug, format, v...)
+		logging.SetFormatter(f)
+		log.Debugf(format, v...)
 	}
 }
