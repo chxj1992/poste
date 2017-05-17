@@ -64,7 +64,7 @@ configor.Load(&Config, "application.yml", "database.json")
 Use `CONFIGOR_ENV` to set environment, if `CONFIGOR_ENV` not set, environment will be `development` by default, and it will be `test` when running tests with `go test`
 
 ```go
-// config.go
+register.go
 configor.Load(&Config, "config.json")
 
 $ go run config.go

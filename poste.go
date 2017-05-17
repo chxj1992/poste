@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"poste/dispather"
 	"poste/api"
-	"poste/config"
 	"poste/util"
+	"poste/register"
 )
 
 func main() {
@@ -53,7 +53,7 @@ func main() {
 				if util.Debugging {
 					util.LogDebug("debug mode")
 				}
-				config.Init()
+				register.Init()
 				return nil
 			},
 		},

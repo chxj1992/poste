@@ -1,4 +1,4 @@
-package config
+package register
 
 import (
 	"poste/consul"
@@ -10,11 +10,11 @@ import (
 )
 
 func Init() {
-	registerRedis()
-	registerQueue()
+	initRedis()
+	initQueue()
 }
 
-func registerRedis() {
+func initRedis() {
 	consul.Clear(consul.Redis)
 
 	_, filename, _, _ := runtime.Caller(1)
@@ -22,13 +22,10 @@ func registerRedis() {
 	redisConf := consul.Service{}
 	configor.Load(&redisConf, configPath)
 
-	consul.Register(consul.Redis, redisConf.Host, redisConf.Port, nil, &api.AgentServiceCheck{
-		TCP: util.ToAddr(redisConf.Host, redisConf.Port),
-		Interval: "10s",
-	})
+	registerRedis(redisConf.Host, redisConf.Port)
 }
 
-func registerQueue() {
+func initQueue() {
 	consul.Clear(consul.Queue)
 
 	_, filename, _, _ := runtime.Caller(1)
@@ -37,9 +34,20 @@ func registerQueue() {
 	configor.Load(&queueConfigs, configPath)
 
 	for _, queueConfig := range queueConfigs {
-		consul.Register(consul.Queue, queueConfig.Host, queueConfig.Port, nil, &api.AgentServiceCheck{
-			TCP: util.ToAddr(queueConfig.Host, queueConfig.Port),
-			Interval: "10s",
-		})
+		registerQueue(queueConfig.Host, queueConfig.Port)
 	}
+}
+
+func registerRedis(host string, port int) {
+	consul.Register(consul.Redis, host, port, nil, &api.AgentServiceCheck{
+		TCP: util.ToAddr(host, port),
+		Interval: "10s",
+	})
+}
+
+func registerQueue(host string, port int) {
+	consul.Register(consul.Queue, host, port, nil, &api.AgentServiceCheck{
+		TCP: util.ToAddr(host, port),
+		Interval: "10s",
+	})
 }

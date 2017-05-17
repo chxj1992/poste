@@ -48,7 +48,6 @@ func handleRequest() {
 			w.Write(Response{Data:map[string]string{"node": node, "ticket":t}}.Marshal())
 		}
 	})
-
 }
 
 func Verify(r *http.Request) (ti oauth2.TokenInfo, err error) {
