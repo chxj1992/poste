@@ -80,13 +80,13 @@ func consuming(queues []*beanstalk.Conn) {
 			if err != nil {
 				util.LogError("dispatch message failed: %s", err)
 				mailman.Refresh <- 1
-				util.LogError("refresh connection %s", err)
 			} else {
 				util.LogDebug("message sent : %s", string(d.Marshal()))
 				c.Delete(id)
 			}
 		} else {
-			util.LogError("addr %s mailman connection hub not exists", addr)
+			util.LogError("addr %s mailman connection not exists", addr)
+			mailman.Refresh <- 1
 		}
 	}
 }

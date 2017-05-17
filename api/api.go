@@ -31,7 +31,7 @@ func mailmanCallback(values []*mailman.Mailman) {
 		mailmen = append(mailmen, m.Addr())
 	}
 
-	util.LogDebug("mailmen %s", mailmen)
+	util.LogDebug("mailmen : %s", mailmen)
 	mailmenRing = hashring.New(mailmen)
 }
 

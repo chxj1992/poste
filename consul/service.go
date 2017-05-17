@@ -89,6 +89,6 @@ func Watch(name ServiceType, callback func(values []*api.ServiceEntry)) {
 				values = append(values, pair)
 			}
 		}
-		callback(values)
+		go callback(values)
 	}
 }

@@ -16,6 +16,11 @@ func LogError(format string, v ...interface{}) {
 	log.Errorf(format, v...)
 }
 
+func LogPanic(format string, v ...interface{}) {
+	LogError(format, v...)
+	panic("Ooops ~ !")
+}
+
 func LogInfo(format string, v ...interface{}) {
 	logging.SetFormatter(f)
 	log.Infof(format, v...)

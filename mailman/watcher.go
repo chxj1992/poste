@@ -10,6 +10,7 @@ var (
 	mailmenValues []*Mailman
 	update = make(chan int, 1)
 	Refresh = make(chan int)
+	startup = true
 )
 
 func Watch(callback func(mailmen []*Mailman)) {
@@ -23,7 +24,8 @@ func Watch(callback func(mailmen []*Mailman)) {
 		case <-Refresh:
 			util.LogDebug("refresh mailmen connection configuration")
 		}
-		callback(mailmenValues)
+		go callback(mailmenValues)
+		startup = false
 	}
 }
 
@@ -41,5 +43,8 @@ func updateFromConsul(q *api.QueryOptions) {
 			mailmenValues = append(mailmenValues, m)
 		}
 	}
-	update <- 1
+
+	if !startup {
+		update <- 1
+	}
 }

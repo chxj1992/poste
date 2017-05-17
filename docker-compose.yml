@@ -37,6 +37,15 @@ services:
       - "6379:6379"
     restart: always
 
+  mongo:
+    image: mongo:3.5.6
+    container_name: poste-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - $PWD/volumes/mongo/data:/data/db
+    restart: always
+
 networks:
   default:
     driver: bridge

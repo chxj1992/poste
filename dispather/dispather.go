@@ -20,7 +20,12 @@ var (
 	mailmen []string
 	mailmenClients map[string]*websocket.Conn
 	mailmenRing *hashring.HashRing
+
+	connectFailedCount = 0
 )
+
+const connectFailedLimit  = 10
+
 
 func OnShutDown() {
 	util.LogInfo("dispather is shutting down ...")
@@ -51,13 +56,18 @@ var mailmanCallback = func(values []*mailman.Mailman) {
 		if err != nil {
 			util.LogError("connect to mailman failed : %s", err)
 			mailman.Refresh <- 1
+			connectFailedCount += 1
+			if connectFailedCount > connectFailedLimit {
+				util.LogPanic("failed time is up to limit : %d", connectFailedLimit)
+			}
 			continue
 		}
+		connectFailedCount = 0
 		util.LogDebug("connected to mailman : %s", m.Addr())
 		mailmenClients[m.Addr()] = c
 	}
 
-	util.LogDebug("mailmen %s", mailmen)
+	util.LogDebug("mailmen : %s", mailmen)
 	mailmenRing = hashring.New(mailmen)
 }
 

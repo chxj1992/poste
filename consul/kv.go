@@ -79,6 +79,6 @@ func KVWatch(prefix string, callback func(values []*api.KVPair)) {
 				values = append(values, pair)
 			}
 		}
-		callback(values)
+		go callback(values)
 	}
 }

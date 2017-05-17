@@ -80,8 +80,7 @@ func buildManager() (manager *manage.Manager) {
 
 	services := consul.Get(consul.Redis)
 	if len(services) <= 0 {
-		util.LogError("redis is not currently available")
-		return
+		util.LogPanic("redis is not currently available, try `poste init` to initialize the services from config.")
 	}
 	service := services[0]
 	redisConf := redis.Config{
