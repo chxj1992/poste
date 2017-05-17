@@ -10,6 +10,7 @@ import (
 	"poste/api"
 	"poste/util"
 	"poste/register"
+	"strconv"
 )
 
 func main() {
@@ -17,6 +18,7 @@ func main() {
 	var (
 		host string
 		port int
+		debug bool
 	)
 
 	var flags = []cli.Flag{
@@ -35,7 +37,7 @@ func main() {
 		cli.BoolFlag{
 			Name:  "debug",
 			Usage: "display debug info",
-			Destination: &util.Debugging,
+			Destination: &debug,
 		},
 	}
 
@@ -50,7 +52,8 @@ func main() {
 			Aliases: []string{"i"},
 			Usage:   "init configuration to consul service",
 			Action:  func(c *cli.Context) error {
-				if util.Debugging {
+				if debug {
+					os.Setenv("Debug", strconv.FormatBool(debug))
 					util.LogDebug("debug mode")
 				}
 				register.Init()
@@ -71,7 +74,8 @@ func main() {
 					os.Exit(1)
 				}()
 
-				if util.Debugging {
+				if debug {
+					os.Setenv("Debug", strconv.FormatBool(debug))
 					util.LogDebug("debug mode")
 				}
 				dispather.Serve(host, port)
@@ -92,7 +96,8 @@ func main() {
 					os.Exit(1)
 				}()
 
-				if util.Debugging {
+				if debug {
+					os.Setenv("Debug", strconv.FormatBool(debug))
 					util.LogDebug("debug mode")
 				}
 				mailman.Serve(host, port)
@@ -113,7 +118,8 @@ func main() {
 					os.Exit(1)
 				}()
 
-				if util.Debugging {
+				if debug {
+					os.Setenv("Debug", strconv.FormatBool(debug))
 					util.LogDebug("debug mode")
 				}
 				api.Serve(host, port)
