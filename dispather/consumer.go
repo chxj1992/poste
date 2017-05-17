@@ -3,7 +3,6 @@ package dispather
 import (
 	"poste/consul"
 	"github.com/hashicorp/consul/api"
-	"poste/data"
 	"github.com/kr/beanstalk"
 	"time"
 	"encoding/json"
@@ -12,6 +11,7 @@ import (
 	"strings"
 	"poste/ticket"
 	"poste/mailman"
+	"poste/structure"
 )
 
 func Consume() {
@@ -54,7 +54,7 @@ func getQueues(values []*api.ServiceEntry) []*beanstalk.Conn {
 }
 
 func consuming(queues []*beanstalk.Conn) {
-	var d data.Data
+	var d structure.Data
 	for _, c := range queues {
 		id, body, err := c.Reserve(5 * time.Second)
 		if err != nil {

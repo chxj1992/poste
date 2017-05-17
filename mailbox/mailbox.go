@@ -1,12 +1,12 @@
 package mailbox
 
 import (
-	"poste/data"
 	"github.com/kr/beanstalk"
 	"time"
 	"poste/consul"
 	"poste/util"
 	"poste/ticket"
+	"poste/structure"
 )
 
 func Send(appId string, userId string, message string) {
@@ -15,7 +15,7 @@ func Send(appId string, userId string, message string) {
 		util.LogError("target is not connected")
 		return
 	}
-	d := data.Data{Target:target, Message:message}
+	d := structure.Data{Target:target, Message:message}
 	bytes := d.Marshal()
 	c := beanstalkClient()
 	if c == nil {

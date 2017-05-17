@@ -4,10 +4,10 @@ import (
 	"github.com/gorilla/websocket"
 	"net/http"
 	"encoding/json"
-	"poste/data"
 	"poste/util"
 	"poste/consul"
 	"poste/ticket"
+	"poste/structure"
 )
 
 var upgrader = websocket.Upgrader{
@@ -22,6 +22,7 @@ type Client struct {
 	conn   *websocket.Conn
 	send   chan []byte
 	ticket string
+	uuid   string
 }
 
 var userHubs = map[string][]*Client{}
@@ -45,7 +46,8 @@ func handle(host string, port int) {
 		client := &Client{conn: conn, send: make(chan []byte, 256), ticket:t}
 
 		if t != "" {
-			userHubs[t] = append(userHubs[t], client)
+			client.uuid = ticket.UUID(info[0], info[1])
+			userHubs[client.uuid] = append(userHubs[client.uuid], client)
 			util.LogDebug("ticket: %s app: %s user: %s connected", t, info[1], info[0])
 		}
 
@@ -70,17 +72,17 @@ func readPump(c *Client) {
 		}
 
 		util.LogDebug("message received : %s", string(message))
-		d := data.Data{}
+		d := structure.Data{}
 		err = json.Unmarshal(message, &d)
 		if err != nil {
 			util.LogError("invalid data structure : %s", string(message))
 			continue
 		}
-		if len(userHubs[d.Target]) == 0 {
+		if len(userHubs[c.uuid]) == 0 {
 			util.LogError("target %s not exists on this node", d.Target)
 			continue
 		}
-		for _, t := range userHubs[d.Target] {
+		for _, t := range userHubs[c.uuid] {
 			t.send <- []byte(d.Message)
 		}
 	}
@@ -114,22 +116,22 @@ func (c *Client) disconnect() {
 	m := websocket.FormatCloseMessage(websocket.CloseNormalClosure, "closed by server")
 	c.conn.WriteMessage(websocket.CloseMessage, m)
 
-	if c.ticket == "" || len(userHubs[c.ticket]) == 0 {
+	if c.uuid == "" || len(userHubs[c.uuid]) == 0 {
 		return
 	}
 
 	clients := []*Client{}
-	for _, client := range userHubs[c.ticket] {
+	for _, client := range userHubs[c.uuid] {
 		if client != c {
 			clients = append(clients)
 		}
 	}
 
-	userHubs[c.ticket] = clients
+	userHubs[c.uuid] = clients
 
 	if len(clients) == 0 {
-		util.LogDebug("target %s is offline", c.ticket)
+		util.LogDebug("user %s with ticket %s is offline", c.uuid, c.ticket)
 	} else {
-		util.LogDebug("target %s closed 1 connection", c.ticket)
+		util.LogDebug("user %s with ticket %s closed 1 connection", c.uuid, c.ticket)
 	}
 }
